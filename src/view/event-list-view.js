@@ -1,21 +1,21 @@
-import { createElement } from "../render";
+import { createElement } from '../render';
 
-const createEventListTemplate = () => `<ul class="trip-events__list"></ul>`;
+const createEventListTemplate = () => '<ul class="trip-events__list"></ul>';
 
 export default class EventList {
-    getTemplate() {
-        return createEventListTemplate();
+  getTemplate() {
+    return createEventListTemplate();
+  }
+
+  getElement() {
+    if (!this.element) {
+      this.element = createElement(this.getTemplate());
     }
 
-    getElement() {
-        if (!this.element) {
-            this.element = createElement(this.getTemplate());
-        }
+    return this.element;
+  }
 
-        return this.element;
-    }
-
-    removeElement() {
-        this.element = null;
-    }
+  removeElement() {
+    this.element = null;
+  }
 }

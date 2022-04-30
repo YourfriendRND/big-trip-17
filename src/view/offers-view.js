@@ -1,7 +1,6 @@
-import { createElement } from "../render";
+import { createElement } from '../render';
 
-const createOffersTemplate = () => {
-    return `<section class="event__section  event__section--offers">
+const createOffersTemplate = () => `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
     <div class="event__available-offers">
@@ -50,23 +49,22 @@ const createOffersTemplate = () => {
         </label>
       </div>
     </div>
-  </section>`
-};
+  </section>`;
 
 export default class Offers {
-    getTemplate() {
-        return createOffersTemplate();
+  getTemplate() {
+    return createOffersTemplate();
+  }
+
+  getElement() {
+    if (!this.element) {
+      this.element = createElement(this.getTemplate());
     }
 
-    getElement() {
-        if (!this.element) {
-            this.element = createElement(this.getTemplate());
-        }
+    return this.element;
+  }
 
-        return this.element;
-    }
-
-    removeElement() {
-        this.element = null;
-    }
+  removeElement() {
+    this.element = null;
+  }
 }

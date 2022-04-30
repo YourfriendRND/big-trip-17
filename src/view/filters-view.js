@@ -1,7 +1,6 @@
 import { createElement } from '../render.js';
 
-const createEventFilterFormTemplate = () => {
-    return `<form class="trip-filters" action="#" method="get">
+const createEventFilterFormTemplate = () => `<form class="trip-filters" action="#" method="get">
     <div class="trip-filters__filter">
       <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything">
       <label class="trip-filters__filter-label" for="filter-everything">Everything</label>
@@ -19,22 +18,21 @@ const createEventFilterFormTemplate = () => {
 
     <button class="visually-hidden" type="submit">Accept filter</button>
   </form>`;
-};
 
 export default class EventFilterForm {
-    getTemplate() {
-        return createEventFilterFormTemplate();
+  getTemplate() {
+    return createEventFilterFormTemplate();
+  }
+
+  getElement() {
+    if (!this.element) {
+      this.element = createElement(this.getTemplate());
     }
 
-    getElement() {
-        if (!this.element) {
-            this.element = createElement(this.getTemplate());
-        }
+    return this.element;
+  }
 
-        return this.element;
-    }
-
-    removeElement() {
-        this.element = null;
-    }
+  removeElement() {
+    this.element = null;
+  }
 }

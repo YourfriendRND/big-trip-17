@@ -1,8 +1,7 @@
 
-import { createElement } from "../render";
+import { createElement } from '../render';
 
-const createEventItemTemplate = () => {
-    return `<li class="trip-events__item">
+const createEventItemTemplate = () => `<li class="trip-events__item">
     <div class="event">
       <time class="event__date" datetime="2019-03-18">MAR 18</time>
       <div class="event__type">
@@ -43,23 +42,22 @@ const createEventItemTemplate = () => {
         <span class="visually-hidden">Open event</span>
       </button>
     </div>
-    </li>`
-};
+    </li>`;
 
 export default class EventItem {
-    getTemplate() {
-        return createEventItemTemplate();
+  getTemplate() {
+    return createEventItemTemplate();
+  }
+
+  getElement() {
+    if (!this.element) {
+      this.element = createElement(this.getTemplate());
     }
 
-    getElement() {
-        if (!this.element) {
-            this.element = createElement(this.getTemplate());
-        }
+    return this.element;
+  }
 
-        return this.element;
-    }
-
-    removeElement() {
-        this.element = null;
-    }
+  removeElement() {
+    this.element = null;
+  }
 }

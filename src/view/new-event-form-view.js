@@ -1,7 +1,6 @@
-import { createElement } from "../render";
+import { createElement } from '../render';
 
-const createNewEventFormTemplate = () => {
-    return `<li class="trip-events__item">
+const createNewEventFormTemplate = () => `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
     <header class="event__header">
       <div class="event__type-wrapper">
@@ -97,22 +96,21 @@ const createNewEventFormTemplate = () => {
     <section class="event__details"></section>
   </form>
   </li>`;
-};
 
 export default class NewEventForm {
-    getTemplate() {
-        return createNewEventFormTemplate();
+  getTemplate() {
+    return createNewEventFormTemplate();
+  }
+
+  getElement() {
+    if (!this.element) {
+      this.element = createElement(this.getTemplate());
     }
 
-    getElement() {
-        if (!this.element) {
-            this.element = createElement(this.getTemplate());
-        }
+    return this.element;
+  }
 
-        return this.element;
-    }
-
-    removeElement() {
-        this.element = null;
-    }
+  removeElement() {
+    this.element = null;
+  }
 }
