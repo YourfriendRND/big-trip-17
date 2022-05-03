@@ -8,7 +8,7 @@ import Offers from '../view/offers-view';
 import { render } from '../render';
 
 export default class TripMapPresenter {
-  init = (mapContainer) => {
+  init = (mapContainer, eventModel) => {
     this.mapContainer = mapContainer;
     this.eventList = new EventList();
     this.newEventForm = new NewEventForm();
@@ -19,7 +19,9 @@ export default class TripMapPresenter {
     render(this.newEventForm, this.eventList.getElement());
     render(new Offers(), this.newEventForm.getElement().querySelector('.event__details'));
     render(new Destination(), this.newEventForm.getElement().querySelector('.event__details'));
-    Array.from({ length: 3 }, () => new EventItem()).forEach((component) => render(component, this.eventList.getElement()));
+    (eventModel.getEvents()).forEach((event) => (render(new EventItem(event), this.eventList.getElement())));
+    // (eventModel.getEvents()).forEach((event) => (console.log(event)));
+    // Array.from({ length: 3 }, () => new EventItem()).forEach((component) => render(component, this.eventList.getElement()));
     render(this.editEventForm, this.eventList.getElement());
     render(new Offers(), this.editEventForm.getElement().querySelector('.event__details'));
     render(new Destination(), this.editEventForm.getElement().querySelector('.event__details'));
