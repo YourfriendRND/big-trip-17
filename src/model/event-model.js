@@ -1,5 +1,6 @@
 import { getEvents } from '../mock/event';
 
+
 export default class EventModel {
   constructor(eventQty) {
     this.eventQty = eventQty;

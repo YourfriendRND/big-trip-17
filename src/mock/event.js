@@ -1,4 +1,3 @@
-// import dayjs from 'dayjs'
 import { getRandomInt } from '../util';
 
 const EVENT_TYPES = [
@@ -10,8 +9,28 @@ const EVENT_TYPES = [
   'ship',
   'sightseeing',
   'taxi',
-  'train',
-  'transport'
+  'train'
+];
+
+const CITIES = [
+  'Chamonix',
+  'Buenos Aires',
+  'Tehran',
+  'La Paz',
+  'Rio de Janeiro',
+  'Minsk',
+  'Liverpool',
+  'Kabul',
+  'Miami',
+  'Kingston',
+  'Monaco',
+  'Baku',
+  'Mexico City',
+  'Bern',
+  'Zürich',
+  'Rome',
+  'Dubai',
+  'Moscow'
 ];
 
 /**
@@ -40,14 +59,18 @@ const getRandomEventsDate = (eventQty) => {
 const getEvents = (eventQty) => (getRandomEventsDate(eventQty).map((eventDate, index) => {
   const startDateAndTime = new Date(eventDate);
   const finishDateAndTime = startDateAndTime.setMinutes(startDateAndTime.getMinutes() + getRandomInt(10, 300));
+  const randomOfferIds = Array.from({length: getRandomInt(0, 6)}, () => getRandomInt(0, 5));
+  // Создаем коллекцию offers и добавляем элементы, каждый элемент коллекции будет уникальным из нее далее получаем массив уникальных значений
+  const offerIdsCollection = new Set();
+  randomOfferIds.forEach((element) => offerIdsCollection.add(element));
   return {
     id: index,
     basePrice: getRandomInt(100, 2500),
     dateFrom: eventDate,
     dateTo: new Date(finishDateAndTime).toISOString(0),
-    destination: '',
+    destination: CITIES[getRandomInt(0, CITIES.length - 1)],
     isFavorite: Math.random() > 0.5,
-    offers: [],
+    offers: Array.from(offerIdsCollection),
     type: EVENT_TYPES[getRandomInt(0, EVENT_TYPES.length - 1)]
   };
 }));

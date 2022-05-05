@@ -15,6 +15,8 @@ const getShortDate = (isoDate) => dayjs(isoDate).format('MMM DD');
 
 const getNormalDateWithTime = (isoDate) => dayjs(isoDate).format('YYYY-MM-DDTHH:mm');
 
+const getDateTimeForEdit = (isoDate) => dayjs(isoDate).format('DD/MM/YY HH:mm');
+
 const getTimeOnly = (isoDate) => dayjs(isoDate).format('HH:mm');
 
 const getDiffTime = (dateFrom, dateTo) => dayjs(dateTo).diff(dayjs(dateFrom), 'minute');
@@ -33,5 +35,6 @@ export {
   getNormalDateWithTime,
   getTimeOnly,
   getDiffTime,
-  getNormileDiffTime
+  getNormileDiffTime,
+  getDateTimeForEdit
 };

@@ -8,7 +8,7 @@ const createEventItemTemplate = ({basePrice, type, dateFrom, dateTo, destination
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
       </div>
-      <h3 class="event__title">${type} Chamonix</h3>
+      <h3 class="event__title">${type} ${destination}</h3>
       <div class="event__schedule">
         <p class="event__time">
           <time class="event__start-time" datetime="${getNormalDateWithTime(dateFrom)}">${getTimeOnly(dateFrom)}</time>
@@ -22,16 +22,11 @@ const createEventItemTemplate = ({basePrice, type, dateFrom, dateTo, destination
       </p>
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
-        <li class="event__offer">
-          <span class="event__offer-title">Add luggage</span>
-          &plus;&euro;&nbsp;
-          <span class="event__offer-price">50</span>
-        </li>
-        <li class="event__offer">
-          <span class="event__offer-title">Switch to comfort</span>
-          &plus;&euro;&nbsp;
-          <span class="event__offer-price">80</span>
-        </li>
+      ${offers.map((element) => `<li class="event__offer">
+        <span class="event__offer-title">${element.title}</span>
+        &plus;&euro;&nbsp;
+        <span class="event__offer-price">${element.price}</span>
+      </li>`).join('')}
       </ul>
       <button class="event__favorite-btn ${isFavorite ? 'event__favorite-btn--active': ''}" type="button">
         <span class="visually-hidden">Add to favorite</span>

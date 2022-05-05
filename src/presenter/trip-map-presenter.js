@@ -8,22 +8,35 @@ import Offers from '../view/offers-view';
 import { render } from '../render';
 
 export default class TripMapPresenter {
-  init = (mapContainer, eventModel) => {
+  init = (mapContainer, eventModel, destinationModel, offerModel) => {
     this.mapContainer = mapContainer;
     this.eventList = new EventList();
-    this.newEventForm = new NewEventForm();
-    this.editEventForm = new EditEventForm();
-
+    this.offers = offerModel.getOffers();
+    this.events = eventModel.getEvents();
+    this.newEventForm = new NewEventForm(this.events[0]);
+    this.destinations = destinationModel.getDestinations();
     render(new EventSortForm(), this.mapContainer);
     render(this.eventList, this.mapContainer);
     render(this.newEventForm, this.eventList.getElement());
-    render(new Offers(), this.newEventForm.getElement().querySelector('.event__details'));
-    render(new Destination(), this.newEventForm.getElement().querySelector('.event__details'));
-    (eventModel.getEvents()).forEach((event) => (render(new EventItem(event), this.eventList.getElement())));
-    // (eventModel.getEvents()).forEach((event) => (console.log(event)));
-    // Array.from({ length: 3 }, () => new EventItem()).forEach((component) => render(component, this.eventList.getElement()));
+    render(new Offers(this.offers, this.events[0]), this.newEventForm.getElement().querySelector('.event__details'));
+    render(new Destination(this.destinations.find((city) => city.name === this.events[0].destination)), this.newEventForm.getElement().querySelector('.event__details'));
+    this.events.forEach((eventRow, index, array) => {
+      // Первая точка для формы создания, последняя точка будет открыта в форме редактирования
+      if (index > 0 && index !== array.length - 1) {
+        const event = {
+          ...eventRow,
+          offers: eventRow.offers.map((id) => {
+            const sameOfferType = this.offers.find((offerType) => offerType.type === eventRow.type);
+            return sameOfferType.offers.find((offer) => offer.id === id);
+          })
+        };
+        render(new EventItem(event), this.eventList.getElement());
+      }
+    });
+    const lastEvent = this.events[this.events.length - 1];
+    this.editEventForm = new EditEventForm(lastEvent);
     render(this.editEventForm, this.eventList.getElement());
-    render(new Offers(), this.editEventForm.getElement().querySelector('.event__details'));
-    render(new Destination(), this.editEventForm.getElement().querySelector('.event__details'));
+    render(new Offers(this.offers, lastEvent), this.editEventForm.getElement().querySelector('.event__details'));
+    render(new Destination(this.destinations.find((city) => city.name === lastEvent.destination)), this.editEventForm.getElement().querySelector('.event__details'));
   };
 }
