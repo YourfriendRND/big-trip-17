@@ -19,7 +19,7 @@ const createEventFilterFormTemplate = () => `<form class="trip-filters" action="
     <button class="visually-hidden" type="submit">Accept filter</button>
   </form>`;
 
-export default class EventFilterForm {
+export default class EventFilterFormView {
   getTemplate() {
     return createEventFilterFormTemplate();
   }

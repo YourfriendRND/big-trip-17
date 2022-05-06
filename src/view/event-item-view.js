@@ -40,7 +40,7 @@ const createEventItemTemplate = ({basePrice, type, dateFrom, dateTo, destination
     </div>
     </li>`;
 
-export default class EventItem {
+export default class EventItemView {
   constructor (event) {
     this.event = event;
   }

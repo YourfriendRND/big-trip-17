@@ -1,7 +1,7 @@
-import { generateOffers } from '../mock/offers';
-
 export default class OfferModel {
-  offers = generateOffers();
+  constructor (offers) {
+    this.offers = offers;
+  }
 
   getOffers = () => this.offers;
 }

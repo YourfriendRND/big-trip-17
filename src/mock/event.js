@@ -1,38 +1,5 @@
 import { getRandomInt } from '../util';
-
-const EVENT_TYPES = [
-  'bus',
-  'check-in',
-  'drive',
-  'flight',
-  'restaurant',
-  'ship',
-  'sightseeing',
-  'taxi',
-  'train'
-];
-
-const CITIES = [
-  'Chamonix',
-  'Buenos Aires',
-  'Tehran',
-  'La Paz',
-  'Rio de Janeiro',
-  'Minsk',
-  'Liverpool',
-  'Kabul',
-  'Miami',
-  'Kingston',
-  'Monaco',
-  'Baku',
-  'Mexico City',
-  'Bern',
-  'Zürich',
-  'Rome',
-  'Dubai',
-  'Moscow'
-];
-
+import { CITIES, OFFERS_TYPES, RANDOM_NUMBER_EVENT } from './constants';
 /**
  * Функция возвращает массив дат в которые происходят события
  * Первая дата случайная, последующие равномерно увеличиваются.
@@ -71,10 +38,8 @@ const getEvents = (eventQty) => (getRandomEventsDate(eventQty).map((eventDate, i
     destination: CITIES[getRandomInt(0, CITIES.length - 1)],
     isFavorite: Math.random() > 0.5,
     offers: Array.from(offerIdsCollection),
-    type: EVENT_TYPES[getRandomInt(0, EVENT_TYPES.length - 1)]
+    type: OFFERS_TYPES[getRandomInt(0, OFFERS_TYPES.length - 1)]
   };
 }));
 
-export {
-  getEvents
-};
+export default getEvents(RANDOM_NUMBER_EVENT);

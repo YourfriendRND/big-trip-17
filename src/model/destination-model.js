@@ -1,7 +1,7 @@
-import { getDestinationPoint } from '../mock/destination';
-
 export default class DestinationModel {
-  destination = getDestinationPoint();
+  constructor (destinations) {
+    this.destinations = destinations;
+  }
 
-  getDestinations = () => this.destination;
+  getDestinations = () => this.destinations;
 }
