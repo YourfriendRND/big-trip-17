@@ -28,5 +28,9 @@
   },
   "engines": {
     "node": "16"
+  },
+  "dependencies": {
+    "dayjs": "1.11.1",
+    "dayjs-plugin-utc": "0.1.2"
   }
 }
