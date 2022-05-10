@@ -20,23 +20,25 @@ const createDestinationTemplate = ({ description, pictures }) => `<section class
   </section>`;
 
 export default class DestinationView {
+  #element = null;
+  #destination = null;
   constructor(destination) {
-    this.destination = destination ? destination : {};
+    this.#destination = destination ? destination : {};
   }
 
-  getTemplate() {
-    return createDestinationTemplate(this.destination);
+  get template() {
+    return createDestinationTemplate(this.#destination);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

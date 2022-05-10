@@ -1,7 +1,10 @@
 export default class OfferModel {
+  #offers;
   constructor (offers) {
-    this.offers = offers;
+    this.#offers = offers;
   }
 
-  getOffers = () => this.offers;
+  get offers () {
+    return this.#offers;
+  }
 }

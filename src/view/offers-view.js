@@ -58,24 +58,27 @@ const createOffersTemplate = (availableOffers, { type, offers }) => `<section cl
   </section>`;
 
 export default class OffersView {
+  #element = null;
+  #event = null;
+  #availableOffers = [];
   constructor(availableOffers, event) {
-    this.event = event ? event : {};
-    this.availableOffers = availableOffers;
+    this.#event = event ? event : {};
+    this.#availableOffers = [...availableOffers];
   }
 
-  getTemplate() {
-    return createOffersTemplate(this.availableOffers, this.event);
+  get template() {
+    return createOffersTemplate(this.#availableOffers, this.#event);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
