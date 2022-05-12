@@ -102,24 +102,28 @@ const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destina
   </li>`;
 
 export default class EditEventFormView {
+  #event = null;
+  #destinations = [];
+  #element = null;
+
   constructor (event, destinations) {
-    this.event = event;
-    this.destinations = destinations;
+    this.#event = event;
+    this.#destinations = [...destinations];
   }
 
-  getTemplate() {
-    return createEditEventFormTemplate(this.event, this.destinations);
+  get template() {
+    return createEditEventFormTemplate(this.#event, this.#destinations);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

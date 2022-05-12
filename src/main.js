@@ -8,7 +8,6 @@ import OfferModel from './model/offer-model';
 import destinationsMock from './mock/destination';
 import eventsMock from './mock/event';
 import offersMock from './mock/offers';
-
 const tripMainBlock = document.querySelector('.trip-main');
 const filterBlock = document.querySelector('.trip-controls__filters');
 const tripEventsBlock = document.querySelector('.trip-events');

@@ -1,7 +1,10 @@
 export default class EventModel {
+  #events;
   constructor(events) {
-    this.events = events;
+    this.#events = events;
   }
 
-  getEvents = () => this.events;
+  get events () {
+    return this.#events;
+  }
 }

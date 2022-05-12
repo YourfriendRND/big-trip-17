@@ -96,23 +96,25 @@ const createNewEventFormTemplate = (destinations) => `<li class="trip-events__it
   </li>`;
 
 export default class NewEventFormView {
+  #element = null;
+  #destinations = [];
   constructor(destinations) {
-    this.destinations = destinations;
+    this.#destinations = [...destinations];
   }
 
-  getTemplate() {
-    return createNewEventFormTemplate(this.destinations);
+  get template() {
+    return createNewEventFormTemplate(this.#destinations);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
