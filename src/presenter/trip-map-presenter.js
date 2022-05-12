@@ -5,6 +5,7 @@ import NewEventFormView from '../view/new-event-form-view';
 import EventSortFormView from '../view/sort-view';
 import EventListView from '../view/event-list-view';
 import OffersView from '../view/offers-view';
+import EmptyListView from '../view/empty-list-view';
 import { render } from '../render';
 
 export default class TripMapPresenter {
@@ -32,6 +33,11 @@ export default class TripMapPresenter {
     this.#offers = [...offerModel.offers];
 
     this.#newEventForm = new NewEventFormView(this.#destinations);
+
+    if (!this.#events.length) {
+      render(new EmptyListView(), this.#mapContainer);
+      return;
+    }
 
     render(this.#eventSortForm, this.#mapContainer);
     render(this.#eventList, this.#mapContainer);
