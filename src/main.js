@@ -1,7 +1,7 @@
 import EventFilterFormView from './view/filters-view';
 import TripInfoView from './view/trip-info-view';
 import TripMapPresenter from './presenter/trip-map-presenter';
-import { render } from './render';
+import { render, RenderPosition } from './framework/render';
 import EventModel from './model/event-model';
 import DestinationModel from './model/destination-model';
 import OfferModel from './model/offer-model';
@@ -18,7 +18,7 @@ const offerModel = new OfferModel(offersMock);
 
 const tripMapPresenter = new TripMapPresenter();
 
-render(new TripInfoView(), tripMainBlock, 'afterbegin');
+render(new TripInfoView(), tripMainBlock, RenderPosition.AFTERBEGIN);
 render(new EventFilterFormView(), filterBlock);
 
 tripMapPresenter.init(tripEventsBlock, eventModel, destinationModel, offerModel);

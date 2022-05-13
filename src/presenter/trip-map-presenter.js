@@ -6,7 +6,7 @@ import EventSortFormView from '../view/sort-view';
 import EventListView from '../view/event-list-view';
 import OffersView from '../view/offers-view';
 import EmptyListView from '../view/empty-list-view';
-import { render } from '../render';
+import { render, replace } from '../framework/render';
 
 export default class TripMapPresenter {
   #mapContainer = null;
@@ -60,13 +60,13 @@ export default class TripMapPresenter {
     const eventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === event.destination));
 
     const replaceEventItemToForm = () => {
-      this.#eventList.element.replaceChild(editEventFormComponent.element, eventItemViewComponent.element);
+      replace(editEventFormComponent, eventItemViewComponent);
       render(eventOffersComponent, editEventFormComponent.element.querySelector('.event__details'));
       render(eventDestinationDetailsComponent, editEventFormComponent.element.querySelector('.event__details'));
     };
 
     const replaceFormToEventItem = () => {
-      this.#eventList.element.replaceChild(eventItemViewComponent.element, editEventFormComponent.element);
+      replace(eventItemViewComponent, editEventFormComponent);
     };
 
     const onEcsKeyDown = (evt) => {
@@ -76,19 +76,17 @@ export default class TripMapPresenter {
         document.removeEventListener('keydown', onEcsKeyDown);
       }
     };
-
-    eventItemViewComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+    eventItemViewComponent.setEditClickHandler(() => {
       replaceEventItemToForm();
       document.addEventListener('keydown', onEcsKeyDown);
     });
 
-    editEventFormComponent.element.querySelector('form').addEventListener('submit', (evt) => {
-      evt.preventDefault();
+    editEventFormComponent.setEditSubmitHandler(() => {
       replaceFormToEventItem();
       document.removeEventListener('keydown', onEcsKeyDown);
     });
 
-    editEventFormComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+    editEventFormComponent.setCloseEditClickHandler(() => {
       replaceFormToEventItem();
       document.removeEventListener('keydown', onEcsKeyDown);
     });
