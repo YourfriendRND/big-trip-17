@@ -1,4 +1,4 @@
-import { createElement } from '../render';
+import AbstractView from '../framework/view/abstract-view';
 
 const createOffersTemplate = (availableOffers, { type, offers }) => `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
@@ -57,28 +57,16 @@ const createOffersTemplate = (availableOffers, { type, offers }) => `<section cl
     </div>
   </section>`;
 
-export default class OffersView {
-  #element = null;
+export default class OffersView extends AbstractView {
   #event = null;
   #availableOffers = [];
   constructor(availableOffers, event) {
+    super();
     this.#event = event ? event : {};
     this.#availableOffers = [...availableOffers];
   }
 
   get template() {
     return createOffersTemplate(this.#availableOffers, this.#event);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

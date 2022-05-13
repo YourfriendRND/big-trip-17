@@ -1,4 +1,4 @@
-import { createElement } from '../render';
+import AbstractView from '../framework/view/abstract-view';
 import { getDateTimeForEdit } from '../util';
 
 const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destination}, destinations) => `<li class="trip-events__item">
@@ -101,12 +101,12 @@ const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destina
     </form>
   </li>`;
 
-export default class EditEventFormView {
+export default class EditEventFormView extends AbstractView {
   #event = null;
   #destinations = [];
-  #element = null;
 
   constructor (event, destinations) {
+    super();
     this.#event = event;
     this.#destinations = [...destinations];
   }
@@ -115,15 +115,23 @@ export default class EditEventFormView {
     return createEditEventFormTemplate(this.#event, this.#destinations);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setEditSubmitHandler = (callback) => {
+    this._callback.submit = callback;
+    this.element.addEventListener('submit', this.#closeEditFormSubmitHandler);
+  };
 
-    return this.#element;
-  }
+  setCloseEditClickHandler = (callback) => {
+    this._callback.click = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeEditFormClickHandler);
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
+  #closeEditFormSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.submit();
+  };
+
+  #closeEditFormClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.click();
+  };
 }
