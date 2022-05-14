@@ -1,7 +1,6 @@
 import DestinationView from '../view/destination-view';
 import EditEventFormView from '../view/edit-event-form-view';
 import EventItemView from '../view/event-item-view';
-import NewEventFormView from '../view/new-event-form-view';
 import EventSortFormView from '../view/sort-view';
 import EventListView from '../view/event-list-view';
 import OffersView from '../view/offers-view';
@@ -13,26 +12,23 @@ export default class TripMapPresenter {
   #eventModel = null;
   #destinationModel = null;
   #offerModel = null;
-  #newEventForm = null;
-
   #offers = [];
   #events = [];
   #destinations = [];
-
   #eventList = new EventListView();
   #eventSortForm = new EventSortFormView();
 
-  init = (mapContainer, eventModel, destinationModel, offerModel) => {
+  constructor(mapContainer, eventModel, destinationModel, offerModel) {
     this.#mapContainer = mapContainer;
     this.#eventModel = eventModel;
     this.#destinationModel = destinationModel;
     this.#offerModel = offerModel;
+  }
 
-    this.#events = [...eventModel.events];
-    this.#destinations = [...destinationModel.destinations];
-    this.#offers = [...offerModel.offers];
-
-    this.#newEventForm = new NewEventFormView(this.#destinations);
+  init = () => {
+    this.#events = [...this.#eventModel.events];
+    this.#destinations = [...this.#destinationModel.destinations];
+    this.#offers = [...this.#offerModel.offers];
 
     if (!this.#events.length) {
       render(new EmptyListView(), this.#mapContainer);

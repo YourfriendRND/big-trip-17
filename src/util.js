@@ -21,12 +21,37 @@ const getTimeOnly = (isoDate) => dayjs(isoDate).format('HH:mm');
 
 const getDiffTime = (dateFrom, dateTo) => dayjs(dateTo).diff(dayjs(dateFrom), 'minute');
 
+const isSameMonth = (dateFrom, dateTo) => dayjs(dateFrom).format('MMM') === dayjs(dateTo).format('MMM');
+
 const getNormileDiffTime = (minute) => {
   const minutesInHour = 60;
   const hours = Math.floor(minute / minutesInHour);
   const remainingMinutes = minute - hours * minutesInHour;
   return `${hours}H ${remainingMinutes}M`;
 };
+
+const getFullRoute = (events) => {
+  const destinationPoints = new Set();
+  events.forEach((event) => destinationPoints.add(event.destination));
+  return destinationPoints.size > 3
+    ? `${events[0].destination} &mdash; ... &mdash; ${events[events.length - 1].destination}`
+    : Array.from(destinationPoints).join('&mdash;');
+};
+
+const getRoutePeriod = (events) => {
+  if (events.length === 1) {
+    return getShortDate(events[0].dateFrom);
+  }
+  const start = events[0].dateFrom;
+  const finish = events[events.length - 1].dateFrom;
+  return !isSameMonth(start, finish)
+    ? `${getShortDate(start)}&nbsp;&mdash;&nbsp;${getShortDate(finish)}`
+    : `${getShortDate(start)}&nbsp;&mdash;&nbsp;${dayjs(finish).format('DD')}`;
+};
+
+const areThereFutureEvents = (events = []) => events.some((event) => dayjs().isBefore(dayjs(event.dateFrom)));
+
+const areTherePastEvents = (events = []) => events.some((event) => dayjs().isAfter(dayjs(event.dateFrom)));
 
 export {
   getRandomInt,
@@ -36,5 +61,9 @@ export {
   getTimeOnly,
   getDiffTime,
   getNormileDiffTime,
-  getDateTimeForEdit
+  getDateTimeForEdit,
+  getFullRoute,
+  getRoutePeriod,
+  areThereFutureEvents,
+  areTherePastEvents
 };
