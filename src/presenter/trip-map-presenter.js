@@ -1,11 +1,8 @@
-import DestinationView from '../view/destination-view';
-import EditEventFormView from '../view/edit-event-form-view';
-import EventItemView from '../view/event-item-view';
 import EventSortFormView from '../view/sort-view';
 import EventListView from '../view/event-list-view';
-import OffersView from '../view/offers-view';
 import EmptyListView from '../view/empty-list-view';
-import { render, replace } from '../framework/render';
+import EventPresenter from './event-presenter';
+import { render } from '../framework/render';
 
 export default class TripMapPresenter {
   #mapContainer = null;
@@ -50,43 +47,7 @@ export default class TripMapPresenter {
 
   #renderEvent = (eventRow) => {
     const event = this.#prepareEvent(eventRow);
-    const eventItemViewComponent = new EventItemView(event);
-    const editEventFormComponent = new EditEventFormView(event, this.#destinations);
-    const eventOffersComponent = new OffersView(this.#offers, event);
-    const eventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === event.destination));
-
-    const replaceEventItemToForm = () => {
-      replace(editEventFormComponent, eventItemViewComponent);
-      render(eventOffersComponent, editEventFormComponent.element.querySelector('.event__details'));
-      render(eventDestinationDetailsComponent, editEventFormComponent.element.querySelector('.event__details'));
-    };
-
-    const replaceFormToEventItem = () => {
-      replace(eventItemViewComponent, editEventFormComponent);
-    };
-
-    const onEcsKeyDown = (evt) => {
-      if (evt.key === 'Esc' || evt.key === 'Escape') {
-        evt.preventDefault();
-        replaceFormToEventItem();
-        document.removeEventListener('keydown', onEcsKeyDown);
-      }
-    };
-    eventItemViewComponent.setEditClickHandler(() => {
-      replaceEventItemToForm();
-      document.addEventListener('keydown', onEcsKeyDown);
-    });
-
-    editEventFormComponent.setEditSubmitHandler(() => {
-      replaceFormToEventItem();
-      document.removeEventListener('keydown', onEcsKeyDown);
-    });
-
-    editEventFormComponent.setCloseEditClickHandler(() => {
-      replaceFormToEventItem();
-      document.removeEventListener('keydown', onEcsKeyDown);
-    });
-
-    render(eventItemViewComponent, this.#eventList.element);
+    const eventPresenter = new EventPresenter(event, this.#destinations, this.#offers, this.#eventList);
+    eventPresenter.init();
   };
 }
