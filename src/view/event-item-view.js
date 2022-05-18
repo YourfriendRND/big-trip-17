@@ -60,6 +60,7 @@ export default class EventItemView extends AbstractView {
     this._callback.click();
   };
 
+  // Favorite
   setFavoriteClickHandler = (callback) => {
     this._callback.favoriteClick = callback;
     this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#tickEventAsFavorite);

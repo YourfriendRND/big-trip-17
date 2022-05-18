@@ -49,5 +49,6 @@ export default class TripMapPresenter {
     const event = this.#prepareEvent(eventRow);
     const eventPresenter = new EventPresenter(event, this.#destinations, this.#offers, this.#eventList);
     eventPresenter.init();
+    eventPresenter.init();
   };
 }
