@@ -53,6 +53,11 @@ const areThereFutureEvents = (events = []) => events.some((event) => dayjs().isB
 
 const areTherePastEvents = (events = []) => events.some((event) => dayjs().isAfter(dayjs(event.dateFrom)));
 
+const updateElement = (elements, updatedElement) => {
+  const index = elements.findIndex((element) => element.id === updatedElement.id);
+  return index === -1 ? elements : [...elements.slice(0, index), updatedElement, ...elements.slice(index + 1)];
+};
+
 export {
   getRandomInt,
   getNormalDate,
@@ -65,5 +70,6 @@ export {
   getFullRoute,
   getRoutePeriod,
   areThereFutureEvents,
-  areTherePastEvents
+  areTherePastEvents,
+  updateElement
 };

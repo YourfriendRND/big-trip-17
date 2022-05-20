@@ -3,6 +3,7 @@ import EventListView from '../view/event-list-view';
 import EmptyListView from '../view/empty-list-view';
 import EventPresenter from './event-presenter';
 import { render } from '../framework/render';
+import { updateElement } from '../util';
 
 export default class TripMapPresenter {
   #mapContainer = null;
@@ -14,6 +15,7 @@ export default class TripMapPresenter {
   #destinations = [];
   #eventList = new EventListView();
   #eventSortForm = new EventSortFormView();
+  #eventPresenter = new Map();
 
   constructor(mapContainer, eventModel, destinationModel, offerModel) {
     this.#mapContainer = mapContainer;
@@ -47,8 +49,17 @@ export default class TripMapPresenter {
 
   #renderEvent = (eventRow) => {
     const event = this.#prepareEvent(eventRow);
-    const eventPresenter = new EventPresenter(event, this.#destinations, this.#offers, this.#eventList);
-    eventPresenter.init();
-    eventPresenter.init();
+    const eventPresenter = new EventPresenter(this.#eventList, this.#handleEventChange, this.#handleModeEventChange);
+    eventPresenter.init(event, this.#destinations, this.#offers);
+    this.#eventPresenter.set(event.id, eventPresenter);
+  };
+
+  #handleEventChange = (updatedEvent) => {
+    this.#events = updateElement(this.#events, updatedEvent);
+    this.#eventPresenter.get(updatedEvent.id).init(updatedEvent, this.#destinations, this.#offers);
+  };
+
+  #handleModeEventChange = () => {
+    this.#eventPresenter.forEach((presenter) => presenter.resetDefaultView());
   };
 }

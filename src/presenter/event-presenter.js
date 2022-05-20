@@ -4,6 +4,11 @@ import OffersView from '../view/offers-view';
 import DestinationView from '../view/destination-view';
 import { render, replace, remove } from '../framework/render';
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
 export default class EventPresenter {
   #event = null;
   #eventViewComponent = null;
@@ -11,25 +16,31 @@ export default class EventPresenter {
   #eventOffersComponent = null;
   #eventDestinationDetailsComponent = null;
   #eventListContainer = null;
+  #changeData = null;
+  #changeMode = null;
 
   #destinations = [];
   #offers = [];
+  #mode = Mode.DEFAULT;
 
-  constructor(event, destinations, offers, eventListContainer) {
+  constructor(eventListContainer, changeData, changeMode) {
+    this.#eventListContainer = eventListContainer;
+    this.#changeData = changeData;
+    this.#changeMode = changeMode;
+  }
+
+  init = (event, destinations, offers) => {
     this.#event = {...event};
     this.#destinations = [...destinations];
     this.#offers = [...offers];
-    this.#eventListContainer = eventListContainer;
-  }
 
-  init = () => {
     // Для переиспользования сохранил предыдущие версии компонентов
     const prevComponentVersions = {
       event: this.#eventViewComponent,
       editForm: this.#editEventFormComponent,
       offers: this.#eventOffersComponent,
       destinations: this.#eventDestinationDetailsComponent
-    }
+    };
 
     this.#eventViewComponent = new EventItemView(this.#event);
     this.#editEventFormComponent = new EditEventFormView(this.#event, this.#destinations);
@@ -42,9 +53,7 @@ export default class EventPresenter {
     });
 
     // Обработчик клика Favorite
-    this.#eventViewComponent.setFavoriteClickHandler(() => {
-      console.log("click");
-    });
+    this.#eventViewComponent.setFavoriteClickHandler(this.#tickAsFavoriteEvent);
 
     this.#editEventFormComponent.setEditSubmitHandler(() => {
       this.#replaceFormToEventItem();
@@ -59,22 +68,19 @@ export default class EventPresenter {
     if (Object.values(prevComponentVersions).every((component) => !component)) {
       render(this.#eventViewComponent, this.#eventListContainer.element);
       return;
-    };
+    }
 
-    Object.keys(prevComponentVersions).forEach((componentName) => {
-      if (this.#eventListContainer.element.contains(prevComponentVersions[componentName].element)) {
-        switch(componentName) {
-          case "event": replace(this.#eventViewComponent, prevComponentVersions[componentName]); break;
-          case "editForm": replace(this.#editEventFormComponent, prevComponentVersions[componentName]); break;
-          case "offers": replace(this.#eventOffersComponent, prevComponentVersions[componentName]); break;
-          case "destinations": replace(this.#eventDestinationDetailsComponent, prevComponentVersions[componentName]); break;
-        }
-      }
-    });
+    if (this.#mode === Mode.DEFAULT) {
+      replace(this.#eventViewComponent, prevComponentVersions.event);
+    }
 
-    Object.keys(prevComponentVersions).forEach((componentName) => {
-      remove(prevComponentVersions[componentName]);
-    });
+    if (this.#mode === Mode.EDITING) {
+      replace(this.#editEventFormComponent, prevComponentVersions.editForm);
+      replace(this.#eventOffersComponent, prevComponentVersions.offers);
+      replace(this.#eventDestinationDetailsComponent, prevComponentVersions.destinations);
+    }
+
+    Object.keys(prevComponentVersions).forEach((componentName) => remove(prevComponentVersions[componentName]));
   };
 
   destroy = () => {
@@ -84,18 +90,27 @@ export default class EventPresenter {
     remove(this.#eventDestinationDetailsComponent);
   };
 
+  resetDefaultView = () => {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#replaceFormToEventItem();
+    }
+  };
+
   #tickAsFavoriteEvent = () => {
-    this.#eventViewComponent
+    this.#changeData({...this.#event, isFavorite: !this.#event.isFavorite});
   };
 
   #replaceEventItemToForm = () => {
     replace(this.#editEventFormComponent, this.#eventViewComponent);
     render(this.#eventOffersComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
     render(this.#eventDestinationDetailsComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
+    this.#changeMode();
+    this.#mode = Mode.EDITING;
   };
 
   #replaceFormToEventItem = () => {
     replace(this.#eventViewComponent, this.#editEventFormComponent);
+    this.#mode = Mode.DEFAULT;
   };
 
   #onEcsKeyDown = (evt) => {
