@@ -58,6 +58,14 @@ const updateElement = (elements, updatedElement) => {
   return index === -1 ? elements : [...elements.slice(0, index), updatedElement, ...elements.slice(index + 1)];
 };
 
+const compareEventsByPrice = (prevEvent, nextEvent) => nextEvent.basePrice - prevEvent.basePrice;
+
+const compareEventsByDuration = (prevEvent, nextEvent) => {
+  const prevEventDuration = dayjs(prevEvent.dateTo) - dayjs(prevEvent.dateFrom);
+  const nextEventDuration = dayjs(nextEvent.dateTo) - dayjs(nextEvent.dateFrom);
+  return nextEventDuration - prevEventDuration;
+};
+
 export {
   getRandomInt,
   getNormalDate,
@@ -71,5 +79,7 @@ export {
   getRoutePeriod,
   areThereFutureEvents,
   areTherePastEvents,
-  updateElement
+  updateElement,
+  compareEventsByPrice,
+  compareEventsByDuration
 };
