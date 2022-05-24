@@ -14,7 +14,6 @@ export default class TripMapPresenter {
   #offers = [];
   #events = [];
   #destinations = [];
-  #currentSortType = SortType.DEFAULT;
   #sourcedEvents = [];
   #eventSortForm = new EventSortFormView();
   #eventList = new EventListView();
@@ -81,23 +80,19 @@ export default class TripMapPresenter {
 
   #sortEvents = (checkedSortType) => {
     switch(checkedSortType) {
-      case SortType.SORT_BY_PRICE: {
+      case SortType.SORT_BY_PRICE.title: {
         this.#events.sort(compareEventsByPrice);
         break;
       }
-      case SortType.SORT_BY_TIME: {
+      case SortType.SORT_BY_TIME.title: {
         this.#events.sort(compareEventsByDuration);
         break;
       }
       default: this.#events = [...this.#sourcedEvents];
     }
-    this.#currentSortType = checkedSortType;
   };
 
   #handleSortEventsChange = (checkedSortType) => {
-    if (checkedSortType === this.#currentSortType) {
-      return;
-    }
     this.#sortEvents(checkedSortType);
     this.#clearEventsList();
     this.#events.forEach(this.#renderEvent);

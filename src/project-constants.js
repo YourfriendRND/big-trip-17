@@ -4,9 +4,26 @@
 */
 
 const SortType = {
-  DEFAULT: 'default',
-  SORT_BY_TIME: 'time',
-  SORT_BY_PRICE: 'price'
+  SORT_BY_DAY: {
+    title: 'day',
+    disabled: false,
+  },
+  SORT_BY_EVENT: {
+    title: 'event',
+    disabled: true
+  },
+  SORT_BY_TIME: {
+    title: 'time',
+    disabled: false,
+  },
+  SORT_BY_PRICE: {
+    title: 'price',
+    disabled: false,
+  },
+  SORT_BY_OFFER: {
+    title: 'offer',
+    disabled: true
+  }
 };
 
 export {
