@@ -52,6 +52,12 @@ export default class EventPresenter {
       document.addEventListener('keydown', this.#onEcsKeyDown);
     });
 
+    //Обработчик смены типа точки маршрута
+    this.#editEventFormComponent.setChangeTypeEventHandler(this.#rerenderEditForm);
+
+    //Обработчик смены точки назначения
+    this.#editEventFormComponent.setChangeDestinationHandler(this.#rerenderEditForm);
+
     // Обработчик клика Favorite
     this.#eventViewComponent.setFavoriteClickHandler(this.#tickAsFavoriteEvent);
 
@@ -81,6 +87,17 @@ export default class EventPresenter {
     }
 
     Object.keys(prevComponentVersions).forEach((componentName) => remove(prevComponentVersions[componentName]));
+  };
+
+  /**
+   * Метод ререндерит форму редактирования в соответствии с обновлёнными данными точки маршрута
+   * @param {Object} updatedEvent - объект с обновлёнными данными точки маршрута
+   */
+  #rerenderEditForm = (updatedEvent) => {
+    this.#eventOffersComponent = new OffersView(this.#offers, updatedEvent);
+    this.#eventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === updatedEvent.destination));
+    render(this.#eventOffersComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
+    render(this.#eventDestinationDetailsComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
   };
 
   destroy = () => {

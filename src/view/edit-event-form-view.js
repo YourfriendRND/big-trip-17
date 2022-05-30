@@ -1,4 +1,5 @@
 import AbstractView from '../framework/view/abstract-view';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { getDateTimeForEdit } from '../util';
 
 const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destination}, destinations) => `<li class="trip-events__item">
@@ -101,19 +102,55 @@ const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destina
     </form>
   </li>`;
 
-export default class EditEventFormView extends AbstractView {
-  #event = null;
+export default class EditEventFormView extends AbstractStatefulView {
+  // #event = null;
   #destinations = [];
 
   constructor (event, destinations) {
     super();
-    this.#event = event;
+    // this.#event = event;
+    this._state = this.#parseEventToState(event)
     this.#destinations = [...destinations];
   }
 
   get template() {
-    return createEditEventFormTemplate(this.#event, this.#destinations);
+    return createEditEventFormTemplate(this._state, this.#destinations);
+  };
+
+  _restoreHandlers = () => {
+    this.setChangeTypeEventHandler(this._callback.changeType);
+    this.setChangeDestinationHandler(this._callback.changeDest);
+  };
+
+  #parseEventToState = (event) => ({...event});
+
+  #parseStateToEvent = (state) => ({...state});
+
+  setChangeTypeEventHandler = (callback) => {
+    this._callback.changeType = callback;
+    const allEventTypeButtons = this.element.querySelectorAll('.event__type-input');
+    allEventTypeButtons.forEach((element) => element.addEventListener('click', this.#changeTypeEvent));
+  };
+
+  #changeTypeEvent = (evt) => {
+    this.updateElement({
+      type: evt.target.value
+    })
+    this._callback.changeType(this.#parseStateToEvent(this._state));
+  };
+
+  setChangeDestinationHandler = (callback) => {
+    this._callback.changeDest = callback;
+    this.element.querySelector('.event__input').addEventListener('change', this.#changeDestinationHandler)
+  };
+
+  #changeDestinationHandler = (evt) => {
+    this.updateElement({
+      destination: evt.target.value
+    })
+    this._callback.changeDest(this.#parseStateToEvent(this._state));
   }
+
 
   setEditSubmitHandler = (callback) => {
     this._callback.submit = callback;
