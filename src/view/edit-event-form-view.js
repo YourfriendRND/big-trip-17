@@ -1,4 +1,3 @@
-import AbstractView from '../framework/view/abstract-view';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { getDateTimeForEdit } from '../util';
 
@@ -103,23 +102,23 @@ const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destina
   </li>`;
 
 export default class EditEventFormView extends AbstractStatefulView {
-  // #event = null;
   #destinations = [];
 
   constructor (event, destinations) {
     super();
-    // this.#event = event;
-    this._state = this.#parseEventToState(event)
+    this._state = this.#parseEventToState(event);
     this.#destinations = [...destinations];
   }
 
   get template() {
     return createEditEventFormTemplate(this._state, this.#destinations);
-  };
+  }
 
   _restoreHandlers = () => {
     this.setChangeTypeEventHandler(this._callback.changeType);
     this.setChangeDestinationHandler(this._callback.changeDest);
+    this.setEditSubmitHandler(this._callback.submit);
+    this.setCloseEditClickHandler(this._callback.click);
   };
 
   #parseEventToState = (event) => ({...event});
@@ -134,23 +133,23 @@ export default class EditEventFormView extends AbstractStatefulView {
 
   #changeTypeEvent = (evt) => {
     this.updateElement({
-      type: evt.target.value
-    })
+      type: evt.target.value,
+      offers: []
+    });
     this._callback.changeType(this.#parseStateToEvent(this._state));
   };
 
   setChangeDestinationHandler = (callback) => {
     this._callback.changeDest = callback;
-    this.element.querySelector('.event__input').addEventListener('change', this.#changeDestinationHandler)
+    this.element.querySelector('.event__input').addEventListener('change', this.#changeDestinationHandler);
   };
 
   #changeDestinationHandler = (evt) => {
     this.updateElement({
       destination: evt.target.value
-    })
+    });
     this._callback.changeDest(this.#parseStateToEvent(this._state));
-  }
-
+  };
 
   setEditSubmitHandler = (callback) => {
     this._callback.submit = callback;
@@ -164,7 +163,7 @@ export default class EditEventFormView extends AbstractStatefulView {
 
   #closeEditFormSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.submit();
+    this._callback.submit(this.#parseStateToEvent(this._state));
   };
 
   #closeEditFormClickHandler = (evt) => {

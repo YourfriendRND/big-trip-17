@@ -2,15 +2,14 @@ import AbstractView from '../framework/view/abstract-view';
 
 const createOffersTemplate = (availableOffers, { type, offers }) => `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
     <div class="event__available-offers">
       ${type
-    ? availableOffers.find((offerType) => offerType.type === type).offers.map((offer) => `<div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="${offer.title}" ${offers.find((id) => offer.id === id) ? 'checked' : ''}>
-        <label class="event__offer-label" for="${offer.id}">
-          <span class="event__offer-title">${offer.title}</span>
+    ? availableOffers.find((offerType) => offerType.type === type).offers.map((currentOffer) => `<div class="event__offer-selector">
+        <input class="event__offer-checkbox  visually-hidden" id="${currentOffer.id}" type="checkbox" name="${currentOffer.title}" ${offers.find((offer) => offer.id === currentOffer.id) ? 'checked' : ''}>
+        <label class="event__offer-label" for="${currentOffer.id}">
+          <span class="event__offer-title">${currentOffer.title}</span>
           &plus;&euro;&nbsp;
-          <span class="event__offer-price">${offer.price}</span>
+          <span class="event__offer-price">${currentOffer.price}</span>
         </label>
       </div>`).join('')
     :

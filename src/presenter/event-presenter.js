@@ -61,8 +61,9 @@ export default class EventPresenter {
     // Обработчик клика Favorite
     this.#eventViewComponent.setFavoriteClickHandler(this.#tickAsFavoriteEvent);
 
-    this.#editEventFormComponent.setEditSubmitHandler(() => {
+    this.#editEventFormComponent.setEditSubmitHandler((updatedEvent) => {
       this.#replaceFormToEventItem();
+      this.#changeData(updatedEvent);
       document.removeEventListener('keydown', this.#onEcsKeyDown);
     });
 
