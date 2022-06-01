@@ -131,24 +131,9 @@ export default class EditEventFormView extends AbstractStatefulView {
     allEventTypeButtons.forEach((element) => element.addEventListener('click', this.#changeTypeEvent));
   };
 
-  #changeTypeEvent = (evt) => {
-    this.updateElement({
-      type: evt.target.value,
-      offers: []
-    });
-    this._callback.changeType(this.#parseStateToEvent(this._state));
-  };
-
   setChangeDestinationHandler = (callback) => {
     this._callback.changeDest = callback;
     this.element.querySelector('.event__input').addEventListener('change', this.#changeDestinationHandler);
-  };
-
-  #changeDestinationHandler = (evt) => {
-    this.updateElement({
-      destination: evt.target.value
-    });
-    this._callback.changeDest(this.#parseStateToEvent(this._state));
   };
 
   setEditSubmitHandler = (callback) => {
@@ -161,9 +146,28 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeEditFormClickHandler);
   };
 
+  reset = (event) => {
+    this.updateElement(this.#parseEventToState(event));
+  };
+
+  #changeDestinationHandler = (evt) => {
+    this.updateElement({
+      destination: evt.target.value
+    });
+    this._callback.changeDest(this.#parseStateToEvent(this._state));
+  };
+
   #closeEditFormSubmitHandler = (evt) => {
     evt.preventDefault();
     this._callback.submit(this.#parseStateToEvent(this._state));
+  };
+
+  #changeTypeEvent = (evt) => {
+    this.updateElement({
+      type: evt.target.value,
+      offers: []
+    });
+    this._callback.changeType(this.#parseStateToEvent(this._state));
   };
 
   #closeEditFormClickHandler = (evt) => {

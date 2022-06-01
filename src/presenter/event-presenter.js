@@ -61,13 +61,16 @@ export default class EventPresenter {
     // Обработчик клика Favorite
     this.#eventViewComponent.setFavoriteClickHandler(this.#tickAsFavoriteEvent);
 
+    // Обработчик кнопки save
     this.#editEventFormComponent.setEditSubmitHandler((updatedEvent) => {
       this.#replaceFormToEventItem();
       this.#changeData(updatedEvent);
       document.removeEventListener('keydown', this.#onEcsKeyDown);
     });
 
+    //Обработчик кнопки закрыть
     this.#editEventFormComponent.setCloseEditClickHandler(() => {
+      this.#resetEditFormView();
       this.#replaceFormToEventItem();
       document.removeEventListener('keydown', this.#onEcsKeyDown);
     });
@@ -101,6 +104,14 @@ export default class EventPresenter {
     render(this.#eventDestinationDetailsComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
   };
 
+  /**
+   * Метод возвращает форму редактирования в её исходное состояние;
+   */
+  #resetEditFormView = () => {
+    this.#editEventFormComponent.reset(this.#event);
+    this.#rerenderEditForm(this.#event);
+  };
+
   destroy = () => {
     remove(this.#eventViewComponent);
     remove(this.#editEventFormComponent);
@@ -110,6 +121,7 @@ export default class EventPresenter {
 
   resetDefaultView = () => {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#resetEditFormView();
       this.#replaceFormToEventItem();
     }
   };
@@ -134,6 +146,7 @@ export default class EventPresenter {
   #onEcsKeyDown = (evt) => {
     if (evt.key === 'Esc' || evt.key === 'Escape') {
       evt.preventDefault();
+      this.#resetEditFormView();
       this.#replaceFormToEventItem();
       document.removeEventListener('keydown', this.#onEcsKeyDown);
     }
