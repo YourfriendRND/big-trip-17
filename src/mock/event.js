@@ -25,7 +25,7 @@ const getRandomEventsDate = (eventQty) => {
 
 const getEvents = (eventQty) => (getRandomEventsDate(eventQty).map((eventDate, index) => {
   const startDateAndTime = new Date(eventDate);
-  const finishDateAndTime = startDateAndTime.setMinutes(startDateAndTime.getMinutes() + getRandomInt(10, 300));
+  const finishDateAndTime = startDateAndTime.setMinutes(startDateAndTime.getMinutes() + getRandomInt(10, 2000));
   const randomOfferIds = Array.from({length: getRandomInt(0, 6)}, () => getRandomInt(0, 5));
   // Создаем коллекцию offers и добавляем элементы, каждый элемент коллекции будет уникальным из нее далее получаем массив уникальных значений
   const offerIdsCollection = new Set();

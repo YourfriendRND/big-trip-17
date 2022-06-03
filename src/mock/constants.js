@@ -47,7 +47,7 @@ const OFFERS_TYPES = [
   'train'
 ];
 
-const RANDOM_NUMBER_EVENT = getRandomInt(0, 10);
+const RANDOM_NUMBER_EVENT = getRandomInt(0, 40);
 
 export {
   RANDOM_NUMBER_EVENT,

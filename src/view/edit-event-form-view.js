@@ -1,6 +1,11 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { getDateTimeForEdit } from '../util';
 
+import flatpickr from 'flatpickr';
+
+import 'flatpickr/dist/flatpickr.min.css';
+
+
 const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destination}, destinations) => `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
       <header class="event__header">
@@ -102,23 +107,35 @@ const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destina
   </li>`;
 
 export default class EditEventFormView extends AbstractStatefulView {
+  #datepicker = null;
   #destinations = [];
 
   constructor (event, destinations) {
     super();
     this._state = this.#parseEventToState(event);
     this.#destinations = [...destinations];
+    this.#setDatepicker();
   }
 
   get template() {
     return createEditEventFormTemplate(this._state, this.#destinations);
   }
 
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#datepicker) {
+      this.#datepicker.destroy();
+      this.#datepicker = null;
+    }
+  };
+
   _restoreHandlers = () => {
     this.setChangeTypeEventHandler(this._callback.changeType);
     this.setChangeDestinationHandler(this._callback.changeDest);
     this.setEditSubmitHandler(this._callback.submit);
     this.setCloseEditClickHandler(this._callback.click);
+    this.#setDatepicker();
   };
 
   #parseEventToState = (event) => ({...event});
@@ -174,4 +191,16 @@ export default class EditEventFormView extends AbstractStatefulView {
     evt.preventDefault();
     this._callback.click();
   };
+
+  // методы для даты
+  #setDatepicker = () => {
+    this.#datepicker = flatpickr(
+      this.element.querySelector('.event__input--time'), {
+        dateFormat: 'j F',
+        defaultDate: this._state.dateFrom,
+        onChange: this.#changeDate()
+      });
+  };
+
+  #changeDate = () => {};
 }
