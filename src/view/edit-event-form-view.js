@@ -1,10 +1,8 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { getDateTimeForEdit } from '../util';
-
 import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/flatpickr.min.css';
-
 
 const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destination}, destinations) => `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
@@ -114,7 +112,8 @@ export default class EditEventFormView extends AbstractStatefulView {
     super();
     this._state = this.#parseEventToState(event);
     this.#destinations = [...destinations];
-    this.#setDatepicker();
+    this.#setDatepickerStartDate();
+    this.#setDatePickerFinishDate();
   }
 
   get template() {
@@ -135,7 +134,9 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.setChangeDestinationHandler(this._callback.changeDest);
     this.setEditSubmitHandler(this._callback.submit);
     this.setCloseEditClickHandler(this._callback.click);
-    this.#setDatepicker();
+    this.setChangeDateTime(this._callback.changeDateTime);
+    this.#setDatepickerStartDate();
+    this.#setDatePickerFinishDate();
   };
 
   #parseEventToState = (event) => ({...event});
@@ -161,6 +162,10 @@ export default class EditEventFormView extends AbstractStatefulView {
   setCloseEditClickHandler = (callback) => {
     this._callback.click = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeEditFormClickHandler);
+  };
+
+  setChangeDateTime = (callback) => {
+    this._callback.changeDateTime = callback;
   };
 
   reset = (event) => {
@@ -193,14 +198,33 @@ export default class EditEventFormView extends AbstractStatefulView {
   };
 
   // методы для даты
-  #setDatepicker = () => {
+  #setDatepickerStartDate = () => {
     this.#datepicker = flatpickr(
-      this.element.querySelector('.event__input--time'), {
-        dateFormat: 'j F',
+      this.element.querySelector('[name="event-start-time"]'), {
+        enableTime: true,
+        'time_24hr': true, // линтер ругается, что не camelCase
         defaultDate: this._state.dateFrom,
-        onChange: this.#changeDate()
+        maxDate: this._state.dateTo,
+        onClose: this.#changeDateTime('dateFrom'), //Поставил onClose потому что onChange не реагирует на смену времени - только дата
+        formatDate: () => getDateTimeForEdit(this._state.dateFrom)
       });
   };
 
-  #changeDate = () => {};
+  #setDatePickerFinishDate = () => {
+    this.#datepicker = flatpickr(
+      this.element.querySelector('[name="event-end-time"]'), {
+        enableTime: true,
+        'time_24hr': true,
+        defaultDate: this._state.dateTo,
+        minDate: this._state.dateFrom,
+        onClose: this.#changeDateTime('dateTo'), //Поставил onClose потому что onChange не реагирует на смену времени - только дата
+        formatDate: () => getDateTimeForEdit(this._state.dateTo)
+      }
+    );
+  };
+
+  #changeDateTime = (dateType) => (([updatedDate]) => {
+    this.updateElement({[dateType]: updatedDate});
+    this._callback.changeDateTime(this.#parseStateToEvent(this._state));
+  });
 }

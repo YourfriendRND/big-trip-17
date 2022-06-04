@@ -1,8 +1,6 @@
 import dayjs from 'dayjs';
-import dayjsUTC from 'dayjs-plugin-utc';
 import duration from 'dayjs/plugin/duration';
-
-dayjs.extend(dayjsUTC);
+import {MINUTES_PER_DAY, MINUTES_PER_HOUR} from './project-constants';
 dayjs.extend(duration);
 
 const getRandomInt = (a = 1, b = 0) => {
@@ -26,8 +24,6 @@ const getDiffTime = (dateFrom, dateTo) => dayjs(dateTo).diff(dayjs(dateFrom), 'm
 const isSameMonth = (dateFrom, dateTo) => dayjs(dateFrom).format('MMM') === dayjs(dateTo).format('MMM');
 
 const getNormileDiffTime = (minute) => {
-  const MINUTES_PER_HOUR = 60;
-  const MINUTES_PER_DAY = 1440;
   const isDay = minute >= MINUTES_PER_DAY;
   const outputFormat = minute > MINUTES_PER_HOUR ? 'HH[H] mm[M]' : 'mm[M]';
   return dayjs.duration(minute, 'minutes').format(isDay ? 'DD[D] HH[H] mm[M]': outputFormat);

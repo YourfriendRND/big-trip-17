@@ -58,6 +58,9 @@ export default class EventPresenter {
     //Обработчик смены точки назначения
     this.#editEventFormComponent.setChangeDestinationHandler(this.#rerenderEditForm);
 
+    // Обработчик смены даты
+    this.#editEventFormComponent.setChangeDateTime(this.#rerenderEditForm);
+
     // Обработчик клика Favorite
     this.#eventViewComponent.setFavoriteClickHandler(this.#tickAsFavoriteEvent);
 

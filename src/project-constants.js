@@ -26,6 +26,11 @@ const SortType = {
   }
 };
 
+const MINUTES_PER_HOUR = 60;
+const MINUTES_PER_DAY = 1440;
+
 export {
-  SortType
+  SortType,
+  MINUTES_PER_HOUR,
+  MINUTES_PER_DAY
 };
