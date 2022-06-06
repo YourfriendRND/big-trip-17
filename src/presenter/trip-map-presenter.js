@@ -3,7 +3,8 @@ import EventListView from '../view/event-list-view';
 import EmptyListView from '../view/empty-list-view';
 import EventPresenter from './event-presenter';
 import { render, RenderPosition } from '../framework/render';
-import { updateElement, compareEventsByPrice, compareEventsByDuration } from '../util';
+// import { updateElement, compareEventsByPrice, compareEventsByDuration } from '../util';
+import { compareEventsByPrice, compareEventsByDuration } from '../util';
 import { SortType } from '../project-constants';
 
 export default class TripMapPresenter {
@@ -14,7 +15,7 @@ export default class TripMapPresenter {
   #offers = [];
   #events = [];
   #destinations = [];
-  #sourcedEvents = [];
+  // #sourcedEvents = [];
   #eventSortForm = new EventSortFormView();
   #eventList = new EventListView();
 
@@ -27,11 +28,15 @@ export default class TripMapPresenter {
     this.#offerModel = offerModel;
   }
 
+  get events () {
+    return this.#eventModel.events.map(this.#getAdaptEventToRender);
+  }
+
   init = () => {
     this.#destinations = [...this.#destinationModel.destinations];
     this.#offers = [...this.#offerModel.offers];
-    this.#events = this.#eventModel.events.map(this.#prepareEvent);
-    this.#sourcedEvents = [...this.#events];
+    this.#events = this.events;
+    // this.#sourcedEvents = [...this.#events];
 
     if (!this.#events.length) {
       render(new EmptyListView(), this.#mapContainer);
@@ -43,12 +48,17 @@ export default class TripMapPresenter {
     this.#events.forEach(this.#renderEvent);
   };
 
-  #prepareEvent = (eventRow) => ({
+  #getAdaptEventToRender = (eventRow) => ({
     ...eventRow,
     offers: eventRow.offers.map((id) => {
       const sameOfferType = this.#offers.find((offerType) => offerType.type === eventRow.type);
       return sameOfferType.offers.find((offer) => offer.id === id);
     })
+  });
+
+  #getAdaptEventToModel = (eventRow) => ({
+    ...eventRow,
+    offers: eventRow.offers.map((offer) => offer.id)
   });
 
   #renderEvent = (event) => {
@@ -63,8 +73,11 @@ export default class TripMapPresenter {
   };
 
   #handleEventChange = (updatedEvent) => {
-    this.#events = updateElement(this.#events, updatedEvent);
-    this.#sourcedEvents = updateElement(this.#sourcedEvents, updatedEvent);
+    // this.#events = updateElement(this.#events, updatedEvent);
+    this.#eventModel.updateEvent(this.#getAdaptEventToModel(updatedEvent));
+    // this.#sourcedEvents = updateElement(this.#sourcedEvents, updatedEvent);
+    // this.#sourcedEvents = [...this.#eventModel.events];
+    this.#events = [...this.events];
     this.#eventPresenter.get(updatedEvent.id).init(updatedEvent, this.#destinations, this.#offers);
   };
 
@@ -88,7 +101,7 @@ export default class TripMapPresenter {
         this.#events.sort(compareEventsByDuration);
         break;
       }
-      default: this.#events = [...this.#sourcedEvents];
+      default: this.#events = [...this.events];
     }
   };
 
