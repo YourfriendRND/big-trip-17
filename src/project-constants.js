@@ -26,11 +26,25 @@ const SortType = {
   }
 };
 
+const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PAST: 'past'
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
 const MINUTES_PER_HOUR = 60;
 const MINUTES_PER_DAY = 1440;
 
 export {
   SortType,
+  FilterType,
+  UpdateType,
   MINUTES_PER_HOUR,
-  MINUTES_PER_DAY
+  MINUTES_PER_DAY,
 };

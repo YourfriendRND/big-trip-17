@@ -1,23 +1,24 @@
 import TripInfoView from '../view/trip-info-view';
-import EventFilterFormView from '../view/filters-view';
+// import EventFilterFormView from '../view/filters-view';
 import { render, RenderPosition } from '../framework/render';
 
 export default class TripHeaderPresenter {
   #headerContainer = null;
-  #filterContainer = null;
+  // #filterContainer = null;
   #eventModel = null;
   #events = [];
 
-  constructor(headerContainer, filterContainer, eventModel) {
+  constructor(headerContainer, eventModel) {
     this.#headerContainer = headerContainer;
-    this.#filterContainer = filterContainer;
+    // this.#filterContainer = filterContainer;
     this.#eventModel = eventModel;
+    this.#events = [...this.#eventModel.events];
   }
 
   init = () => {
-    this.#events = [...this.#eventModel.events];
-    const eventFilter = new EventFilterFormView(this.#events);
-    render(eventFilter, this.#filterContainer);
+    // this.#events = [...this.#eventModel.events];
+    // const eventFilter = new EventFilterFormView(this.#events);
+    // render(eventFilter, this.#filterContainer);
     if (!this.#events.length) {
       return;
     }

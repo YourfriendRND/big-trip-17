@@ -32,4 +32,15 @@ export default class EventFilterFormView extends AbstractView {
   get template() {
     return createEventFilterFormTemplate(this.#events);
   }
+
+  setChangeFilter = (callback) => {
+    this._callback.changeType = callback;
+    this.element.querySelectorAll('.trip-filters__filter-input').forEach((element) => element.addEventListener('change', this.#changeFilterTypeHandler));
+  };
+
+  #changeFilterTypeHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.changeType(evt.target.value);
+  };
+
 }

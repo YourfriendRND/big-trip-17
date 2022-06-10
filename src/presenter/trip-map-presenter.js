@@ -4,14 +4,15 @@ import EmptyListView from '../view/empty-list-view';
 import EventPresenter from './event-presenter';
 import { render, RenderPosition } from '../framework/render';
 // import { updateElement, compareEventsByPrice, compareEventsByDuration } from '../util';
-import { compareEventsByPrice, compareEventsByDuration } from '../util';
-import { SortType } from '../project-constants';
+import { compareEventsByPrice, compareEventsByDuration, getPastEvents, getFutureEvents } from '../util';
+import { SortType, FilterType } from '../project-constants';
 
 export default class TripMapPresenter {
   #mapContainer = null;
   #eventModel = null;
   #destinationModel = null;
   #offerModel = null;
+  #filterModel = null;
   #offers = [];
   #events = [];
   #destinations = [];
@@ -21,11 +22,14 @@ export default class TripMapPresenter {
 
   #eventPresenter = new Map();
 
-  constructor(mapContainer, eventModel, destinationModel, offerModel) {
+  constructor(mapContainer, eventModel, destinationModel, offerModel, filterModel) {
     this.#mapContainer = mapContainer;
     this.#eventModel = eventModel;
     this.#destinationModel = destinationModel;
     this.#offerModel = offerModel;
+    this.#filterModel = filterModel;
+    // this.#eventModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get events () {
@@ -35,7 +39,7 @@ export default class TripMapPresenter {
   init = () => {
     this.#destinations = [...this.#destinationModel.destinations];
     this.#offers = [...this.#offerModel.offers];
-    this.#events = this.events;
+    this.#events = this.#getFilteredEvents(this.#filterModel.filter);
     // this.#sourcedEvents = [...this.#events];
 
     if (!this.#events.length) {
@@ -46,6 +50,21 @@ export default class TripMapPresenter {
     render(this.#eventList, this.#mapContainer);
     this.#renderSort();
     this.#events.forEach(this.#renderEvent);
+  };
+
+  #handleModelEvent = () => {
+    // Сбрасывать сортировку
+    this.#clearEventsList();
+    this.init();
+  };
+
+  #getFilteredEvents = (currentFilter) => {
+    switch (currentFilter) {
+      case FilterType.EVERYTHING: return this.events;
+      case FilterType.FUTURE: return getFutureEvents(this.events);
+      case FilterType.PAST: return getPastEvents(this.events);
+      default: throw new Error('Unknown type of filter');
+    }
   };
 
   #getAdaptEventToRender = (eventRow) => ({

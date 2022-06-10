@@ -65,6 +65,10 @@ const compareEventsByDuration = (prevEvent, nextEvent) => {
   return nextEventDuration - prevEventDuration;
 };
 
+const getFutureEvents = (events) => events.filter((event) => dayjs().isBefore(dayjs(event.dateFrom)));
+
+const getPastEvents = (events) => events.filter((event) => dayjs().isAfter(dayjs(event.dateFrom)));
+
 export {
   getRandomInt,
   getNormalDate,
@@ -80,5 +84,7 @@ export {
   areTherePastEvents,
   updateElement,
   compareEventsByPrice,
-  compareEventsByDuration
+  compareEventsByDuration,
+  getFutureEvents,
+  getPastEvents
 };
