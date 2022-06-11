@@ -4,9 +4,9 @@ import { getFullRoute, getRoutePeriod } from '../util';
 
 const createTripInfoTemplate = (events) => `<section class="trip-main__trip-info  trip-info">
     <div class="trip-info__main">
-      <h1 class="trip-info__title">${getFullRoute(events)}</h1>
+      <h1 class="trip-info__title">${!events.length ? '' : getFullRoute(events)}</h1>
 
-      <p class="trip-info__dates">${getRoutePeriod(events)}</p>
+      <p class="trip-info__dates">${!events.length ? '' : getRoutePeriod(events)}</p>
     </div>
 
     <p class="trip-info__cost">
@@ -24,4 +24,5 @@ export default class TripInfoView extends AbstractView {
   get template() {
     return createTripInfoTemplate(this.#events);
   }
+
 }

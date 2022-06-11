@@ -2,10 +2,10 @@ import EventSortFormView from '../view/sort-view';
 import EventListView from '../view/event-list-view';
 import EmptyListView from '../view/empty-list-view';
 import EventPresenter from './event-presenter';
-import { render, RenderPosition } from '../framework/render';
+import { remove, render, RenderPosition } from '../framework/render';
 // import { updateElement, compareEventsByPrice, compareEventsByDuration } from '../util';
-import { compareEventsByPrice, compareEventsByDuration, getPastEvents, getFutureEvents } from '../util';
-import { SortType, FilterType } from '../project-constants';
+import { compareEventsByPrice, compareEventsByDuration, getFilteredEvents } from '../util';
+import { SortType, UserAction } from '../project-constants';
 
 export default class TripMapPresenter {
   #mapContainer = null;
@@ -13,10 +13,10 @@ export default class TripMapPresenter {
   #destinationModel = null;
   #offerModel = null;
   #filterModel = null;
+  #emptyListViewComponent = null;
   #offers = [];
   #events = [];
   #destinations = [];
-  // #sourcedEvents = [];
   #eventSortForm = new EventSortFormView();
   #eventList = new EventListView();
 
@@ -28,7 +28,7 @@ export default class TripMapPresenter {
     this.#destinationModel = destinationModel;
     this.#offerModel = offerModel;
     this.#filterModel = filterModel;
-    // this.#eventModel.addObserver(this.#handleModelEvent);
+    this.#eventModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
@@ -39,11 +39,11 @@ export default class TripMapPresenter {
   init = () => {
     this.#destinations = [...this.#destinationModel.destinations];
     this.#offers = [...this.#offerModel.offers];
-    this.#events = this.#getFilteredEvents(this.#filterModel.filter);
+    this.#events = getFilteredEvents(this.#filterModel.filter, this.events);
     // this.#sourcedEvents = [...this.#events];
-
     if (!this.#events.length) {
-      render(new EmptyListView(), this.#mapContainer);
+      this.#emptyListViewComponent = new EmptyListView(this.#filterModel.filter);
+      render(this.#emptyListViewComponent, this.#mapContainer);
       return;
     }
 
@@ -52,18 +52,33 @@ export default class TripMapPresenter {
     this.#events.forEach(this.#renderEvent);
   };
 
-  #handleModelEvent = () => {
-    // Сбрасывать сортировку
+  #clearMapContainer = () => {
+    remove(this.#emptyListViewComponent);
     this.#clearEventsList();
+  };
+
+  #handleModelEvent = () => {
+    this.#clearMapContainer();
+    this.#resetSortType();
     this.init();
   };
 
-  #getFilteredEvents = (currentFilter) => {
-    switch (currentFilter) {
-      case FilterType.EVERYTHING: return this.events;
-      case FilterType.FUTURE: return getFutureEvents(this.events);
-      case FilterType.PAST: return getPastEvents(this.events);
-      default: throw new Error('Unknown type of filter');
+  #handleViewAction = (userActionType, update) => {
+    const adaptedEventToModel = this.#getAdaptEventToModel(update);
+    switch (userActionType) {
+      case UserAction.ADD_EVENT: {
+        this.#eventModel.addEvent(adaptedEventToModel);
+        break;
+      }
+      case UserAction.DELETE_EVENT: {
+        this.#eventModel.deleteEvent(adaptedEventToModel);
+        break;
+      }
+      case UserAction.UPDATE_EVENT: {
+        this.#eventModel.updateEvent(adaptedEventToModel);
+        break;
+      }
+      default: throw new Error('Unknown user action');
     }
   };
 
@@ -81,7 +96,7 @@ export default class TripMapPresenter {
   });
 
   #renderEvent = (event) => {
-    const eventPresenter = new EventPresenter(this.#eventList, this.#handleEventChange, this.#handleModeEventChange);
+    const eventPresenter = new EventPresenter(this.#eventList, this.#handleViewAction, this.#handleModeEventChange);
     eventPresenter.init(event, this.#destinations, this.#offers);
     this.#eventPresenter.set(event.id, eventPresenter);
   };
@@ -89,15 +104,6 @@ export default class TripMapPresenter {
   #clearEventsList = () => {
     this.#eventPresenter.forEach((presenter) => presenter.destroy());
     this.#eventPresenter.clear();
-  };
-
-  #handleEventChange = (updatedEvent) => {
-    // this.#events = updateElement(this.#events, updatedEvent);
-    this.#eventModel.updateEvent(this.#getAdaptEventToModel(updatedEvent));
-    // this.#sourcedEvents = updateElement(this.#sourcedEvents, updatedEvent);
-    // this.#sourcedEvents = [...this.#eventModel.events];
-    this.#events = [...this.events];
-    this.#eventPresenter.get(updatedEvent.id).init(updatedEvent, this.#destinations, this.#offers);
   };
 
   #handleModeEventChange = () => {
@@ -129,4 +135,10 @@ export default class TripMapPresenter {
     this.#clearEventsList();
     this.#events.forEach(this.#renderEvent);
   };
+
+  #resetSortType = () => {
+    this.#eventSortForm.resetCurrentSortType();
+    remove(this.#eventSortForm);
+  };
+
 }

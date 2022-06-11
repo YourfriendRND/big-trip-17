@@ -11,6 +11,9 @@ const createEventSortFormTemplate = () => `<form class="trip-events__trip-sort  
 
 export default class EventSortFormView extends AbstractView {
   #currentSortType = SortType.SORT_BY_DAY.title;
+  constructor() {
+    super();
+  }
 
   get template() {
     return createEventSortFormTemplate();
@@ -30,5 +33,9 @@ export default class EventSortFormView extends AbstractView {
     this.#currentSortType = evt.target.control.dataset.sortType;
     controlElement.checked = true;
     this._callback.sortTypeChange(evt.target.control.dataset.sortType);
+  };
+
+  resetCurrentSortType = () => {
+    this.#currentSortType = SortType.SORT_BY_DAY.title;
   };
 }

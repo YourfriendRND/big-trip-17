@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import {MINUTES_PER_DAY, MINUTES_PER_HOUR} from './project-constants';
+import {MINUTES_PER_DAY, MINUTES_PER_HOUR, FilterType} from './project-constants';
 dayjs.extend(duration);
 
 const getRandomInt = (a = 1, b = 0) => {
@@ -52,6 +52,8 @@ const areThereFutureEvents = (events = []) => events.some((event) => dayjs().isB
 
 const areTherePastEvents = (events = []) => events.some((event) => dayjs().isAfter(dayjs(event.dateFrom)));
 
+const isEventBeforeNextEvent = (event, nextEvent) => dayjs(event.dateFrom).isBefore(dayjs(nextEvent.dateFrom));
+
 const updateElement = (elements, updatedElement) => {
   const index = elements.findIndex((element) => element.id === updatedElement.id);
   return index === -1 ? elements : [...elements.slice(0, index), updatedElement, ...elements.slice(index + 1)];
@@ -69,6 +71,15 @@ const getFutureEvents = (events) => events.filter((event) => dayjs().isBefore(da
 
 const getPastEvents = (events) => events.filter((event) => dayjs().isAfter(dayjs(event.dateFrom)));
 
+const getFilteredEvents = (currentFilter, events = []) => {
+  switch (currentFilter) {
+    case FilterType.EVERYTHING: return events;
+    case FilterType.FUTURE: return getFutureEvents(events);
+    case FilterType.PAST: return getPastEvents(events);
+    default: throw new Error('Unknown type of filter');
+  }
+};
+
 export {
   getRandomInt,
   getNormalDate,
@@ -85,6 +96,6 @@ export {
   updateElement,
   compareEventsByPrice,
   compareEventsByDuration,
-  getFutureEvents,
-  getPastEvents
+  getFilteredEvents,
+  isEventBeforeNextEvent
 };

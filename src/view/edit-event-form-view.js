@@ -164,12 +164,22 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeEditFormClickHandler);
   };
 
+  setDeleteEventClickHandler = (callback) => {
+    this._callback.deleteEvent = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteEventHandler);
+  };
+
   setChangeDateTime = (callback) => {
     this._callback.changeDateTime = callback;
   };
 
   reset = (event) => {
     this.updateElement(this.#parseEventToState(event));
+  };
+
+  #deleteEventHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteEvent(this.#parseStateToEvent(this._state));
   };
 
   #changeDestinationHandler = (evt) => {
@@ -224,7 +234,7 @@ export default class EditEventFormView extends AbstractStatefulView {
   };
 
   #changeDateTime = (dateType) => (([updatedDate]) => {
-    this.updateElement({[dateType]: updatedDate});
+    this.updateElement({[dateType]: updatedDate.toISOString(0)});
     this._callback.changeDateTime(this.#parseStateToEvent(this._state));
   });
 }

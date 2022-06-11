@@ -67,7 +67,7 @@ export default class EventPresenter {
     // Обработчик кнопки save
     this.#editEventFormComponent.setEditSubmitHandler((updatedEvent) => {
       this.#replaceFormToEventItem();
-      this.#changeData(updatedEvent);
+      this.#changeData('UPDATE_EVENT', updatedEvent);
       document.removeEventListener('keydown', this.#onEcsKeyDown);
     });
 
@@ -76,6 +76,11 @@ export default class EventPresenter {
       this.#resetEditFormView();
       this.#replaceFormToEventItem();
       document.removeEventListener('keydown', this.#onEcsKeyDown);
+    });
+
+    // Обработчик кнопки удаления
+    this.#editEventFormComponent.setDeleteEventClickHandler((deletedEvent) => {
+      this.#changeData('DELETE_EVENT', deletedEvent);
     });
 
     if (Object.values(prevComponentVersions).every((component) => !component)) {
@@ -130,7 +135,7 @@ export default class EventPresenter {
   };
 
   #tickAsFavoriteEvent = () => {
-    this.#changeData({...this.#event, isFavorite: !this.#event.isFavorite});
+    this.#changeData('UPDATE_EVENT', {...this.#event, isFavorite: !this.#event.isFavorite});
   };
 
   #replaceEventItemToForm = () => {

@@ -41,10 +41,24 @@ const UpdateType = {
 const MINUTES_PER_HOUR = 60;
 const MINUTES_PER_DAY = 1440;
 
+const EmptyListMessage = {
+  EVERYTHING: 'Click New Event to create your first point',
+  PAST: 'There are no past events now',
+  FUTURE: 'There are no future events now'
+};
+
+const UserAction = {
+  UPDATE_EVENT: 'UPDATE_EVENT',
+  ADD_EVENT: 'ADD_EVENT',
+  DELETE_EVENT: 'DELETE_EVENT',
+};
+
 export {
   SortType,
   FilterType,
   UpdateType,
   MINUTES_PER_HOUR,
   MINUTES_PER_DAY,
+  EmptyListMessage,
+  UserAction
 };
