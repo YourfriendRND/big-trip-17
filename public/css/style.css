@@ -669,6 +669,23 @@ main {
     text-align: center; }
   .event__input--price {
     width: 66px; }
+    .event__input--destination:invalid {
+      border: 1px solid red;
+    }
+
+.event__input--price::-webkit-outer-spin-button,
+.event__input--price::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+.event__input--price {
+  -moz-appearance: textfield;
+};
+
+.event__input--price:hover,
+.event__input--price:focus {
+  appearance: none;
+}
 
 .event__save-btn {
   margin-right: 18px; }

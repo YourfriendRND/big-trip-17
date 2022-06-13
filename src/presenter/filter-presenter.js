@@ -2,6 +2,7 @@ import EventFilterFormView from '../view/filters-view';
 import TripInfoView from '../view/trip-info-view';
 import { remove, render, RenderPosition } from '../framework/render';
 import { getFilteredEvents } from '../util';
+import { UpdateType } from '../project-constants';
 
 export default class FilterPresenter {
   #eventModel = null;
@@ -18,6 +19,7 @@ export default class FilterPresenter {
     this.#eventModel = eventModel;
     this.#filterModel = filterModel;
     this.#filterModel.addObserver(this.#handleModelEvent);
+    this.#eventModel.addObserver(this.#handleModelEvent);
   }
 
   init = () => {
@@ -36,14 +38,28 @@ export default class FilterPresenter {
     this.#filterModel.setFilterType(updatedType);
   };
 
-  #handleModelEvent = () => {
-    this.#destroyHeader();
-    this.#events = getFilteredEvents(this.#filterModel.filter, this.#eventModel.events);
-    this.#headerViewComponent = new TripInfoView(this.#events);
-    render(this.#headerViewComponent, this.#headerContainer, RenderPosition.AFTERBEGIN);
+  #handleModelEvent = (type) => {
+    switch (type) {
+      case UpdateType.FULL: {
+        this.#destroyHeader();
+        this.#destroyFilter();
+        this.init();
+        break;
+      }
+      default: {
+        this.#destroyHeader();
+        this.#events = getFilteredEvents(this.#filterModel.filter, this.#eventModel.events);
+        this.#headerViewComponent = new TripInfoView(this.#events);
+        render(this.#headerViewComponent, this.#headerContainer, RenderPosition.AFTERBEGIN);
+      }
+    }
   };
 
   #destroyHeader = () => {
     remove(this.#headerViewComponent);
+  };
+
+  #destroyFilter = () => {
+    remove(this.#filterViewComponent);
   };
 }

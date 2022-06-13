@@ -2,10 +2,10 @@ import EventSortFormView from '../view/sort-view';
 import EventListView from '../view/event-list-view';
 import EmptyListView from '../view/empty-list-view';
 import EventPresenter from './event-presenter';
+import NewEventPresener from './new-event-presenter';
 import { remove, render, RenderPosition } from '../framework/render';
-// import { updateElement, compareEventsByPrice, compareEventsByDuration } from '../util';
 import { compareEventsByPrice, compareEventsByDuration, getFilteredEvents } from '../util';
-import { SortType, UserAction } from '../project-constants';
+import { FilterType, SortType, UserAction, UpdateType } from '../project-constants';
 
 export default class TripMapPresenter {
   #mapContainer = null;
@@ -14,20 +14,22 @@ export default class TripMapPresenter {
   #offerModel = null;
   #filterModel = null;
   #emptyListViewComponent = null;
+  #newEventButton = null;
   #offers = [];
   #events = [];
   #destinations = [];
   #eventSortForm = new EventSortFormView();
   #eventList = new EventListView();
-
   #eventPresenter = new Map();
+  #newEventPresenter = null;
 
-  constructor(mapContainer, eventModel, destinationModel, offerModel, filterModel) {
+  constructor(mapContainer, newEventButton, eventModel, destinationModel, offerModel, filterModel) {
     this.#mapContainer = mapContainer;
     this.#eventModel = eventModel;
     this.#destinationModel = destinationModel;
     this.#offerModel = offerModel;
     this.#filterModel = filterModel;
+    this.#newEventButton = newEventButton;
     this.#eventModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
@@ -40,14 +42,15 @@ export default class TripMapPresenter {
     this.#destinations = [...this.#destinationModel.destinations];
     this.#offers = [...this.#offerModel.offers];
     this.#events = getFilteredEvents(this.#filterModel.filter, this.events);
-    // this.#sourcedEvents = [...this.#events];
+    this.#newEventButton.addEventListener('click', this.#createNewEvent);
+    this.#newEventPresenter = new NewEventPresener(this.#handleViewAction);
+    render(this.#eventList, this.#mapContainer);
     if (!this.#events.length) {
       this.#emptyListViewComponent = new EmptyListView(this.#filterModel.filter);
       render(this.#emptyListViewComponent, this.#mapContainer);
       return;
     }
 
-    render(this.#eventList, this.#mapContainer);
     this.#renderSort();
     this.#events.forEach(this.#renderEvent);
   };
@@ -108,6 +111,7 @@ export default class TripMapPresenter {
 
   #handleModeEventChange = () => {
     this.#eventPresenter.forEach((presenter) => presenter.resetDefaultView());
+    this.#newEventPresenter.destroy();
   };
 
   // Методы сортировки точек маршрута
@@ -139,6 +143,14 @@ export default class TripMapPresenter {
   #resetSortType = () => {
     this.#eventSortForm.resetCurrentSortType();
     remove(this.#eventSortForm);
+  };
+
+  // Создание новой точки маршрута
+  #createNewEvent = () => {
+    this.#handleModeEventChange();
+    this.#newEventPresenter.init(this.#eventList, this.#newEventButton, this.#destinations, this.#offers);
+    this.#resetSortType();
+    this.#filterModel.setFilterType(FilterType.EVERYTHING, UpdateType.FULL);
   };
 
 }

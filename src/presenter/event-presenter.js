@@ -61,11 +61,15 @@ export default class EventPresenter {
     // Обработчик смены даты
     this.#editEventFormComponent.setChangeDateTime(this.#rerenderEditForm);
 
+    this.#editEventFormComponent.setChangePriceHandler(this.#rerenderEditForm);
+
     // Обработчик клика Favorite
     this.#eventViewComponent.setFavoriteClickHandler(this.#tickAsFavoriteEvent);
 
+
     // Обработчик кнопки save
     this.#editEventFormComponent.setEditSubmitHandler((updatedEvent) => {
+      updatedEvent.offers = this.#eventOffersComponent.getCheckedOffers();
       this.#replaceFormToEventItem();
       this.#changeData('UPDATE_EVENT', updatedEvent);
       document.removeEventListener('keydown', this.#onEcsKeyDown);

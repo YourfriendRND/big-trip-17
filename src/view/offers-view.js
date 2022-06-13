@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view';
 
-const createOffersTemplate = (availableOffers, { type, offers }) => `<section class="event__section  event__section--offers">
+const createOffersTemplate = (availableOffers, { type = 'flight', offers = [] }) => `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
       ${type
@@ -68,4 +68,10 @@ export default class OffersView extends AbstractView {
   get template() {
     return createOffersTemplate(this.#availableOffers, this.#event);
   }
+
+  /**
+   * Получение всех выбранных доп.опций пользователем
+   * @returns {Array} Массив id доп.опций
+   */
+  getCheckedOffers = () => Array.from(this.element.querySelectorAll('.event__offer-checkbox')).map((element) => element.checked ? {id: Number(element.id)} : undefined).filter(Boolean);
 }

@@ -11,14 +11,14 @@ import offersMock from './mock/offers';
 const tripMainBlock = document.querySelector('.trip-main');
 const filterBlock = document.querySelector('.trip-controls__filters');
 const tripEventsBlock = document.querySelector('.trip-events');
-
+const newEventButton = document.querySelector('.trip-main__event-add-btn');
 const destinationModel = new DestinationModel(destinationsMock);
 const eventModel = new EventModel(eventsMock);
 const offerModel = new OfferModel(offersMock);
 const filterModel = new FilterModel();
 
 const filterPresenter = new FilterPresenter(tripMainBlock, filterBlock, eventModel, filterModel);
-const tripMapPresenter = new TripMapPresenter(tripEventsBlock, eventModel, destinationModel, offerModel, filterModel);
+const tripMapPresenter = new TripMapPresenter(tripEventsBlock, newEventButton, eventModel, destinationModel, offerModel, filterModel);
 
 tripMapPresenter.init();
 filterPresenter.init();

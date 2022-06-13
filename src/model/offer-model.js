@@ -8,7 +8,4 @@ export default class OfferModel {
     return this.#offers;
   }
 
-  set offers (offers) {
-    this.#offers = offers;
-  }
 }

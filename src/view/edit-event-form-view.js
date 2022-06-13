@@ -89,7 +89,7 @@ const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destina
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+          <input class="event__input  event__input--price" id="event-price-1" type="number" pattern="\\/[0-9]/" name="event-price" value="${basePrice}">
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -137,6 +137,7 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.setChangeDateTime(this._callback.changeDateTime);
     this.#setDatepickerStartDate();
     this.#setDatePickerFinishDate();
+    this.setChangePriceHandler(this._callback.changePrice);
   };
 
   #parseEventToState = (event) => ({...event});
@@ -177,12 +178,31 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.updateElement(this.#parseEventToState(event));
   };
 
+  setChangePriceHandler = (callback) => {
+    this._callback.changePrice = callback;
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#changePriceHandler);
+  };
+
+  #changePriceHandler = (evt) => {
+    this.updateElement({
+      basePrice: Number(evt.target.value)
+    });
+    this._callback.changePrice(this.#parseStateToEvent(this._state));
+  };
+
   #deleteEventHandler = (evt) => {
     evt.preventDefault();
     this._callback.deleteEvent(this.#parseStateToEvent(this._state));
   };
 
   #changeDestinationHandler = (evt) => {
+    const validToggle = this.#isDestinationValid(evt.target.value);
+    const submitBtn = this.element.querySelector('.event__save-btn');
+    if (!validToggle) {
+      submitBtn.disabled = true;
+      evt.target.setCustomValidity('incorrect destination point, please select a destination from the list of available');
+      return;
+    }
     this.updateElement({
       destination: evt.target.value
     });
@@ -237,4 +257,10 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.updateElement({[dateType]: updatedDate.toISOString(0)});
     this._callback.changeDateTime(this.#parseStateToEvent(this._state));
   });
+
+  #isDestinationValid = (destinationValue) => {
+    const targetDestination = this.#destinations.find((destination) => destination.name === destinationValue);
+    return !!targetDestination;
+  };
+
 }

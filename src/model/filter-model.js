@@ -1,5 +1,5 @@
 import Observable from '../framework/observable';
-import { FilterType } from '../project-constants';
+import { FilterType, UpdateType } from '../project-constants';
 
 export default class FilterModel extends Observable {
   #filter = FilterType.EVERYTHING;
@@ -8,9 +8,13 @@ export default class FilterModel extends Observable {
     return this.#filter;
   }
 
-  setFilterType(updatedType) {
+  /**
+   * Устанавливает новый тип фильтра
+   * @param {String} updatedType - Новый тип фиьтра
+   * @param {String} eventType - Тип события
+   */
+  setFilterType(updatedType, eventType = UpdateType.DEFAULT) {
     this.#filter = updatedType;
-    this._notify();
-    // this._notify(updatedType, filter);
+    this._notify(eventType);
   }
 }

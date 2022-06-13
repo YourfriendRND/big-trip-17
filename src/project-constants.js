@@ -33,9 +33,8 @@ const FilterType = {
 };
 
 const UpdateType = {
-  PATCH: 'PATCH',
-  MINOR: 'MINOR',
-  MAJOR: 'MAJOR',
+  DEFAULT: 'DEFAULT',
+  FULL: 'FULL'
 };
 
 const MINUTES_PER_HOUR = 60;
@@ -60,5 +59,5 @@ export {
   MINUTES_PER_HOUR,
   MINUTES_PER_DAY,
   EmptyListMessage,
-  UserAction
+  UserAction,
 };
