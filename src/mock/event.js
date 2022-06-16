@@ -1,5 +1,5 @@
 import { getRandomInt } from '../util';
-import { CITIES, OFFERS_TYPES, RANDOM_NUMBER_EVENT } from './constants';
+import { CITIES, EVENT_TYPES, RANDOM_NUMBER_EVENT } from '../project-constants';
 /**
  * Функция возвращает массив дат в которые происходят события
  * Первая дата случайная, последующие равномерно увеличиваются.
@@ -38,7 +38,7 @@ const getEvents = (eventQty) => (getRandomEventsDate(eventQty).map((eventDate, i
     destination: CITIES[getRandomInt(0, CITIES.length - 1)],
     isFavorite: Math.random() > 0.5,
     offers: Array.from(offerIdsCollection),
-    type: OFFERS_TYPES[getRandomInt(0, OFFERS_TYPES.length - 1)]
+    type: EVENT_TYPES[getRandomInt(0, EVENT_TYPES.length - 1)]
   };
 }));
 

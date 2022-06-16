@@ -30,6 +30,9 @@ const getNormileDiffTime = (minute) => {
 };
 
 const getFullRoute = (events) => {
+  if (!events.length) {
+    return '';
+  }
   const destinationPoints = new Set();
   events.forEach((event) => destinationPoints.add(event.destination));
   return destinationPoints.size > 3
@@ -38,6 +41,9 @@ const getFullRoute = (events) => {
 };
 
 const getRoutePeriod = (events) => {
+  if (!events.length) {
+    return '';
+  }
   if (events.length === 1) {
     return getShortDate(events[0].dateFrom);
   }
@@ -71,6 +77,12 @@ const getFutureEvents = (events) => events.filter((event) => dayjs().isBefore(da
 
 const getPastEvents = (events) => events.filter((event) => dayjs().isAfter(dayjs(event.dateFrom)));
 
+const checkUnavailableFilter = (events) => {
+  const futureEvents = getFutureEvents(events);
+  const pastEvents = getPastEvents(events);
+  return !futureEvents.length || !pastEvents.length;
+};
+
 const getFilteredEvents = (currentFilter, events = []) => {
   switch (currentFilter) {
     case FilterType.EVERYTHING: return events;
@@ -97,5 +109,6 @@ export {
   compareEventsByPrice,
   compareEventsByDuration,
   getFilteredEvents,
-  isEventBeforeNextEvent
+  isEventBeforeNextEvent,
+  checkUnavailableFilter
 };

@@ -3,7 +3,7 @@ import flatpickr from 'flatpickr';
 import { getDateTimeForEdit } from '../util';
 import 'flatpickr/dist/flatpickr.min.css';
 
-const createNewEventFormTemplate = (destinations, event = null) => `<li class="trip-events__item">
+const createNewEventFormTemplate = (destinations, eventTypes, event = null) => `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
     <header class="event__header">
       <div class="event__type-wrapper">
@@ -16,50 +16,10 @@ const createNewEventFormTemplate = (destinations, event = null) => `<li class="t
         <div class="event__type-list">
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Event type</legend>
-            <div class="event__type-item">
-            <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="taxi" ${event && event.type === 'taxi' ? 'checked' : ''}>
-            <label class="event__type-label  event__type-label--taxi" for="event-type-taxi-1">Taxi</label>
-          </div>
-
-          <div class="event__type-item">
-            <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus" ${event && event.type === 'bus' ? 'checked' : ''}>
-            <label class="event__type-label  event__type-label--bus" for="event-type-bus-1">Bus</label>
-          </div>
-
-          <div class="event__type-item">
-            <input id="event-type-train-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="train" ${event && event.type === 'train' ? 'checked' : ''}>
-            <label class="event__type-label  event__type-label--train" for="event-type-train-1">Train</label>
-          </div>
-
-          <div class="event__type-item">
-            <input id="event-type-ship-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="ship" ${event && event.type === 'ship' ? 'checked' : ''}>
-            <label class="event__type-label  event__type-label--ship" for="event-type-ship-1">Ship</label>
-          </div>
-
-          <div class="event__type-item">
-            <input id="event-type-drive-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="drive" ${event && event.type === 'drive' ? 'checked' : ''}>
-            <label class="event__type-label  event__type-label--drive" for="event-type-drive-1">Drive</label>
-          </div>
-
-          <div class="event__type-item">
-            <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" ${event && event.type === 'flight' ? 'checked' : ''} >
-            <label class="event__type-label  event__type-label--flight" for="event-type-flight-1">Flight</label>
-          </div>
-
-          <div class="event__type-item">
-            <input id="event-type-check-in-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="check-in" ${event && event.type === 'check-in' ? 'checked' : ''}>
-            <label class="event__type-label  event__type-label--check-in" for="event-type-check-in-1">Check-in</label>
-          </div>
-
-          <div class="event__type-item">
-            <input id="event-type-sightseeing-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="sightseeing" ${event && event.type === 'sightseeing' ? 'checked' : ''}>
-            <label class="event__type-label  event__type-label--sightseeing" for="event-type-sightseeing-1">Sightseeing</label>
-          </div>
-
-          <div class="event__type-item">
-            <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant" ${event && event.type === 'restaurant' ? 'checked' : ''}>
-            <label class="event__type-label  event__type-label--restaurant" for="event-type-restaurant-1">Restaurant</label>
-          </div>
+            ${eventTypes.map((type) => ` <div class="event__type-item">
+              <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${event && event.type === type ? 'checked' : ''}>
+              <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type.charAt(0).toUpperCase() + type.slice(1)}</label>
+            </div>`).join('')}
           </fieldset>
         </div>
       </div>
@@ -100,17 +60,19 @@ const createNewEventFormTemplate = (destinations, event = null) => `<li class="t
 export default class NewEventFormView extends AbstractStatefulView {
   #destinations = [];
   #datepicker = null;
+  #eventTypes = null;
 
-  constructor(destinations, event = null) {
+  constructor(destinations, offers, event = null) {
     super();
     this.#destinations = [...destinations];
-    this._state = !event ? this.#getNewEventData() : this.#parseEventToState(event);
+    this.#eventTypes = offers.map((offer) => offer.type);
+    this._state = event ? this.#parseEventToState(event) : this.#getNewEventData();
     this.#setDatepickerStartDate();
     this.#setDatePickerFinishDate();
   }
 
   get template() {
-    return createNewEventFormTemplate(this.#destinations, this._state);
+    return createNewEventFormTemplate(this.#destinations, this.#eventTypes, this._state);
   }
 
   removeElement = () => {
@@ -264,8 +226,5 @@ export default class NewEventFormView extends AbstractStatefulView {
     }
   };
 
-  #isDestinationValid = (destinationValue) => {
-    const targetDestination = this.#destinations.find((destination) => destination.name === destinationValue);
-    return !!targetDestination;
-  };
+  #isDestinationValid = (destinationValue) => this.#destinations.some((destination) => destination.name === destinationValue);
 }

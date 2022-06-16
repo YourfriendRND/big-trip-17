@@ -2,6 +2,7 @@ import NewEventFormView from '../view/new-event-form-view';
 import OffersView from '../view/offers-view';
 import DestinationView from '../view/destination-view';
 import { render, RenderPosition, remove } from '../framework/render';
+import { UserAction } from '../project-constants';
 
 export default class NewEventPresener {
   #newEventFormComponent = null;
@@ -24,7 +25,7 @@ export default class NewEventPresener {
     this.#offers = [...offers];
 
     this.#newEventButton.disabled = true;
-    this.#newEventFormComponent = new NewEventFormView(this.#destinations);
+    this.#newEventFormComponent = new NewEventFormView(this.#destinations, this.#offers);
     render(this.#newEventFormComponent, this.#eventList.element, RenderPosition.AFTERBEGIN);
     this.#newEventOfferComponent = new OffersView(this.#offers);
     this.#newEventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === 'Geneva'));
@@ -54,7 +55,7 @@ export default class NewEventPresener {
 
   #saveEvent = (createdEvent) => {
     createdEvent.offers = this.#newEventOfferComponent.getCheckedOffers();
-    this.#changeData('ADD_EVENT', createdEvent);
+    this.#changeData(UserAction.ADD_EVENT, createdEvent);
     this.destroy();
   };
 

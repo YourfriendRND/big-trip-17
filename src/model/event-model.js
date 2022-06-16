@@ -22,7 +22,7 @@ export default class EventModel extends Observable {
     const index = this.#events.findIndex((event) => isEventBeforeNextEvent(createdEvent, event));
     this.#events = index === -1
       ? [...this.#events, createdEvent]
-      : [...this.#events.slice(0, index), createdEvent, ...this.#events.slice(index + 1)];
+      : [...this.#events.slice(0, index), createdEvent, ...this.#events.slice(index)];
     this._notify(UpdateType.FULL);
   };
 
@@ -35,7 +35,7 @@ export default class EventModel extends Observable {
     this.#events = index === -1
       ? this.#events
       : [...this.#events.slice(0, index), updatedEvent, ...this.#events.slice(index + 1)];
-    this._notify(UpdateType.FULL);
+    this._notify(UpdateType.DEFAULT);
   };
 
   /**

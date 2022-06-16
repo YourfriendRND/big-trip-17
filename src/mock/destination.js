@@ -1,5 +1,5 @@
 import { getRandomInt } from '../util';
-import { CITIES, DESCRIPTIONS } from './constants';
+import { CITIES, DESCRIPTIONS } from '../project-constants';
 /**
  * Функция возвращает объект с информацией о точке назначения:
  * Название, описание, фото

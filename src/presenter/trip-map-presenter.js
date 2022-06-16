@@ -5,10 +5,10 @@ import EventPresenter from './event-presenter';
 import NewEventPresener from './new-event-presenter';
 import { remove, render, RenderPosition } from '../framework/render';
 import { compareEventsByPrice, compareEventsByDuration, getFilteredEvents } from '../util';
-import { FilterType, SortType, UserAction, UpdateType } from '../project-constants';
+import { FilterType, SortType, UserAction, UpdateType, EmptyListMessage } from '../project-constants';
 
 export default class TripMapPresenter {
-  #mapContainer = null;
+  #listContainer = null;
   #eventModel = null;
   #destinationModel = null;
   #offerModel = null;
@@ -23,8 +23,8 @@ export default class TripMapPresenter {
   #eventPresenter = new Map();
   #newEventPresenter = null;
 
-  constructor(mapContainer, newEventButton, eventModel, destinationModel, offerModel, filterModel) {
-    this.#mapContainer = mapContainer;
+  constructor(listContainer, newEventButton, eventModel, destinationModel, offerModel, filterModel) {
+    this.#listContainer = listContainer;
     this.#eventModel = eventModel;
     this.#destinationModel = destinationModel;
     this.#offerModel = offerModel;
@@ -44,10 +44,10 @@ export default class TripMapPresenter {
     this.#events = getFilteredEvents(this.#filterModel.filter, this.events);
     this.#newEventButton.addEventListener('click', this.#createNewEvent);
     this.#newEventPresenter = new NewEventPresener(this.#handleViewAction);
-    render(this.#eventList, this.#mapContainer);
+    render(this.#eventList, this.#listContainer);
     if (!this.#events.length) {
-      this.#emptyListViewComponent = new EmptyListView(this.#filterModel.filter);
-      render(this.#emptyListViewComponent, this.#mapContainer);
+      this.#emptyListViewComponent = new EmptyListView(this.#setEmptyMessageByFilter);
+      render(this.#emptyListViewComponent, this.#listContainer);
       return;
     }
 
@@ -55,15 +55,26 @@ export default class TripMapPresenter {
     this.#events.forEach(this.#renderEvent);
   };
 
-  #clearMapContainer = () => {
+  #clearListContainer = () => {
     remove(this.#emptyListViewComponent);
     this.#clearEventsList();
   };
 
-  #handleModelEvent = () => {
-    this.#clearMapContainer();
-    this.#resetSortType();
-    this.init();
+  #handleModelEvent = (type) => {
+    switch (type) {
+      case UpdateType.FULL: {
+        this.#filterModel.setFilterType(FilterType.EVERYTHING);
+        this.#clearListContainer();
+        this.#resetSortType();
+        this.init();
+        break;
+      }
+      default: {
+        this.#clearListContainer();
+        this.#resetSortType();
+        this.init();
+      }
+    }
   };
 
   #handleViewAction = (userActionType, update) => {
@@ -116,7 +127,7 @@ export default class TripMapPresenter {
 
   // Методы сортировки точек маршрута
   #renderSort = () => {
-    render(this.#eventSortForm, this.#mapContainer, RenderPosition.AFTERBEGIN);
+    render(this.#eventSortForm, this.#listContainer, RenderPosition.AFTERBEGIN);
     this.#eventSortForm.setSortTypeChangeHandler(this.#handleSortEventsChange);
   };
 
@@ -150,7 +161,15 @@ export default class TripMapPresenter {
     this.#handleModeEventChange();
     this.#newEventPresenter.init(this.#eventList, this.#newEventButton, this.#destinations, this.#offers);
     this.#resetSortType();
-    this.#filterModel.setFilterType(FilterType.EVERYTHING, UpdateType.FULL);
+  };
+
+  #setEmptyMessageByFilter = () => {
+    switch(this.#filterModel.filter) {
+      case FilterType.EVERYTHING: return EmptyListMessage.EVERYTHING;
+      case FilterType.FUTURE: return EmptyListMessage.FUTURE;
+      case FilterType.PAST: return EmptyListMessage.PAST;
+      default: throw new Error('Unknown filter type');
+    }
   };
 
 }

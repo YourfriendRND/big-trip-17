@@ -3,6 +3,7 @@ import EditEventFormView from '../view/edit-event-form-view';
 import OffersView from '../view/offers-view';
 import DestinationView from '../view/destination-view';
 import { render, replace, remove } from '../framework/render';
+import { UserAction } from '../project-constants';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -33,7 +34,6 @@ export default class EventPresenter {
     this.#event = {...event};
     this.#destinations = [...destinations];
     this.#offers = [...offers];
-
     // Для переиспользования сохранил предыдущие версии компонентов
     const prevComponentVersions = {
       event: this.#eventViewComponent,
@@ -43,7 +43,7 @@ export default class EventPresenter {
     };
 
     this.#eventViewComponent = new EventItemView(this.#event);
-    this.#editEventFormComponent = new EditEventFormView(this.#event, this.#destinations);
+    this.#editEventFormComponent = new EditEventFormView(this.#event, this.#destinations, this.#offers);
     this.#eventOffersComponent = new OffersView(this.#offers, this.#event);
     this.#eventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === this.#event.destination));
 
@@ -71,7 +71,7 @@ export default class EventPresenter {
     this.#editEventFormComponent.setEditSubmitHandler((updatedEvent) => {
       updatedEvent.offers = this.#eventOffersComponent.getCheckedOffers();
       this.#replaceFormToEventItem();
-      this.#changeData('UPDATE_EVENT', updatedEvent);
+      this.#changeData(UserAction.UPDATE_EVENT, updatedEvent);
       document.removeEventListener('keydown', this.#onEcsKeyDown);
     });
 
@@ -84,7 +84,7 @@ export default class EventPresenter {
 
     // Обработчик кнопки удаления
     this.#editEventFormComponent.setDeleteEventClickHandler((deletedEvent) => {
-      this.#changeData('DELETE_EVENT', deletedEvent);
+      this.#changeData(UserAction.DELETE_EVENT, deletedEvent);
     });
 
     if (Object.values(prevComponentVersions).every((component) => !component)) {
@@ -139,7 +139,7 @@ export default class EventPresenter {
   };
 
   #tickAsFavoriteEvent = () => {
-    this.#changeData('UPDATE_EVENT', {...this.#event, isFavorite: !this.#event.isFavorite});
+    this.#changeData(UserAction.UPDATE_EVENT, {...this.#event, isFavorite: !this.#event.isFavorite});
   };
 
   #replaceEventItemToForm = () => {

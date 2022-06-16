@@ -1,7 +1,7 @@
 import { getRandomInt } from '../util';
-import { OFFERS_TYPES, DESCRIPTIONS } from './constants';
+import { EVENT_TYPES, DESCRIPTIONS } from '../project-constants';
 
-const generateOffers = () => OFFERS_TYPES.map((type) => ({
+const generateOffers = () => EVENT_TYPES.map((type) => ({
   type,
   offers: Array.from({ length: 6 }, (element, index) => ({
     id: index + 1,

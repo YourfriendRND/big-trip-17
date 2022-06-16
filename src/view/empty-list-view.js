@@ -1,25 +1,18 @@
 import AbstractView from '../framework/view/abstract-view';
-import { FilterType, EmptyListMessage } from '../project-constants';
 
 const createEmptyListTemplate = (message) => `<p class="trip-events__msg">${message}</p>`;
 
 export default class EmptyListView extends AbstractView {
-  #currentFilter = null;
-  constructor(filter) {
+  #message = null;
+  #setMessage = null;
+  constructor(setMessage) {
     super();
-    this.#currentFilter = filter;
+    this.setMessage = setMessage;
+    this.message = this.setMessage();
   }
 
   get template() {
-    return createEmptyListTemplate(this.#getMessage());
+    return createEmptyListTemplate(this.message);
   }
 
-  #getMessage = () => {
-    switch(this.#currentFilter) {
-      case FilterType.EVERYTHING: return EmptyListMessage.EVERYTHING;
-      case FilterType.FUTURE: return EmptyListMessage.FUTURE;
-      case FilterType.PAST: return EmptyListMessage.PAST;
-      default: throw new Error('Unknown filter type');
-    }
-  };
 }

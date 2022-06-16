@@ -4,7 +4,7 @@ import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
-const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destination}, destinations) => `<li class="trip-events__item">
+const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destination}, destinations, eventTypes) => `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
@@ -17,51 +17,10 @@ const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destina
           <div class="event__type-list">
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Event type</legend>
-
-              <div class="event__type-item">
-                <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="taxi" ${type === 'taxi' ? 'checked' : ''}>
-                <label class="event__type-label  event__type-label--taxi" for="event-type-taxi-1">Taxi</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus" ${type === 'bus' ? 'checked' : ''}>
-                <label class="event__type-label  event__type-label--bus" for="event-type-bus-1">Bus</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-train-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="train" ${type === 'train' ? 'checked' : ''}>
-                <label class="event__type-label  event__type-label--train" for="event-type-train-1">Train</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-ship-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="ship" ${type === 'ship' ? 'checked' : ''}>
-                <label class="event__type-label  event__type-label--ship" for="event-type-ship-1">Ship</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-drive-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="drive" ${type === 'drive' ? 'checked' : ''}>
-                <label class="event__type-label  event__type-label--drive" for="event-type-drive-1">Drive</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" ${type === 'flight' ? 'checked' : ''}>
-                <label class="event__type-label  event__type-label--flight" for="event-type-flight-1">Flight</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-check-in-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="check-in" ${type === 'check-in' ? 'checked' : ''}>
-                <label class="event__type-label  event__type-label--check-in" for="event-type-check-in-1">Check-in</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-sightseeing-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="sightseeing" ${type === 'sightseeing' ? 'checked' : ''}>
-                <label class="event__type-label  event__type-label--sightseeing" for="event-type-sightseeing-1">Sightseeing</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant" ${type === 'restaurant' ? 'checked' : ''}>
-                <label class="event__type-label  event__type-label--restaurant" for="event-type-restaurant-1">Restaurant</label>
-              </div>
+              ${eventTypes.map((eventType) => ` <div class="event__type-item">
+              <input id="event-type-${eventType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventType}" ${type === eventType ? 'checked' : ''}>
+              <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-1">${eventType.charAt(0).toUpperCase() + eventType.slice(1)}</label>
+            </div>`).join('')}
             </fieldset>
           </div>
         </div>
@@ -107,17 +66,20 @@ const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destina
 export default class EditEventFormView extends AbstractStatefulView {
   #datepicker = null;
   #destinations = [];
+  #eventTypes = null;
 
-  constructor (event, destinations) {
+  constructor (event, destinations, offers) {
     super();
     this._state = this.#parseEventToState(event);
     this.#destinations = [...destinations];
+    this.#eventTypes = offers.map((offer) => offer.type);
+
     this.#setDatepickerStartDate();
     this.#setDatePickerFinishDate();
   }
 
   get template() {
-    return createEditEventFormTemplate(this._state, this.#destinations);
+    return createEditEventFormTemplate(this._state, this.#destinations, this.#eventTypes);
   }
 
   removeElement = () => {
@@ -138,6 +100,7 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.#setDatepickerStartDate();
     this.#setDatePickerFinishDate();
     this.setChangePriceHandler(this._callback.changePrice);
+    this.setDeleteEventClickHandler(this._callback.deleteEvent);
   };
 
   #parseEventToState = (event) => ({...event});
@@ -258,9 +221,6 @@ export default class EditEventFormView extends AbstractStatefulView {
     this._callback.changeDateTime(this.#parseStateToEvent(this._state));
   });
 
-  #isDestinationValid = (destinationValue) => {
-    const targetDestination = this.#destinations.find((destination) => destination.name === destinationValue);
-    return !!targetDestination;
-  };
+  #isDestinationValid = (destinationValue) => this.#destinations.some((destination) => destination.name === destinationValue);
 
 }
