@@ -5,15 +5,19 @@ import DestinationModel from './model/destination-model';
 import OfferModel from './model/offer-model';
 import FilterModel from './model/filter-model';
 import destinationsMock from './mock/destination';
-import eventsMock from './mock/event';
+// import eventsMock from './mock/event';
 import offersMock from './mock/offers';
+import EventApiService from './event-api-service';
+import { ApiConfig } from './project-constants';
+
+const api = new EventApiService(ApiConfig.END_POINT, ApiConfig.AUTHORIZATION);
 
 const tripMainBlock = document.querySelector('.trip-main');
 const filterBlock = document.querySelector('.trip-controls__filters');
 const tripEventsBlock = document.querySelector('.trip-events');
 const newEventButton = document.querySelector('.trip-main__event-add-btn');
 const destinationModel = new DestinationModel(destinationsMock);
-const eventModel = new EventModel(eventsMock);
+const eventModel = new EventModel(api);
 const offerModel = new OfferModel(offersMock);
 const filterModel = new FilterModel();
 

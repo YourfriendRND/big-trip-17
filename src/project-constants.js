@@ -36,8 +36,13 @@ const CITIES = [
   'Moscow'
 ];
 
+const RestApiMethods = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT'
+};
 
-const RANDOM_NUMBER_EVENT = getRandomInt(0, 5);
+const RANDOM_NUMBER_EVENT = getRandomInt(0, 15);
 
 const SortType = {
   SORT_BY_DAY: {
@@ -102,6 +107,11 @@ const EVENT_TYPES = [
   'train'
 ];
 
+const ApiConfig = {
+  AUTHORIZATION: 'Basic ifdg7848dfg989fgrt888691254d1fds',
+  END_POINT: 'https://17.ecmascript.pages.academy/big-trip'
+};
+
 export {
   SortType,
   FilterType,
@@ -114,5 +124,7 @@ export {
   RANDOM_NUMBER_EVENT,
   DESCRIPTIONS,
   CITIES,
-  DEFAULT_EVENT_TYPE
+  DEFAULT_EVENT_TYPE,
+  RestApiMethods,
+  ApiConfig
 };

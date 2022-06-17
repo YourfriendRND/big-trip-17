@@ -73,6 +73,8 @@ const compareEventsByDuration = (prevEvent, nextEvent) => {
   return nextEventDuration - prevEventDuration;
 };
 
+const compareEventsByDay = (prevEvent, nextEvent) => isEventBeforeNextEvent(prevEvent, nextEvent) ? -1 : 1;
+
 const getFutureEvents = (events) => events.filter((event) => dayjs().isBefore(dayjs(event.dateFrom)));
 
 const getPastEvents = (events) => events.filter((event) => dayjs().isAfter(dayjs(event.dateFrom)));
@@ -109,6 +111,7 @@ export {
   compareEventsByPrice,
   compareEventsByDuration,
   getFilteredEvents,
+  checkUnavailableFilter,
   isEventBeforeNextEvent,
-  checkUnavailableFilter
+  compareEventsByDay
 };

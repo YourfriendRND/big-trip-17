@@ -46,7 +46,7 @@ export default class TripMapPresenter {
     this.#newEventPresenter = new NewEventPresener(this.#handleViewAction);
     render(this.#eventList, this.#listContainer);
     if (!this.#events.length) {
-      this.#emptyListViewComponent = new EmptyListView(this.#setEmptyMessageByFilter);
+      this.#emptyListViewComponent = new EmptyListView(this.#getEmptyMessageByFilter());
       render(this.#emptyListViewComponent, this.#listContainer);
       return;
     }
@@ -163,7 +163,7 @@ export default class TripMapPresenter {
     this.#resetSortType();
   };
 
-  #setEmptyMessageByFilter = () => {
+  #getEmptyMessageByFilter = () => {
     switch(this.#filterModel.filter) {
       case FilterType.EVERYTHING: return EmptyListMessage.EVERYTHING;
       case FilterType.FUTURE: return EmptyListMessage.FUTURE;

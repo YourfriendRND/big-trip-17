@@ -4,15 +4,13 @@ const createEmptyListTemplate = (message) => `<p class="trip-events__msg">${mess
 
 export default class EmptyListView extends AbstractView {
   #message = null;
-  #setMessage = null;
-  constructor(setMessage) {
+  constructor(message) {
     super();
-    this.setMessage = setMessage;
-    this.message = this.setMessage();
+    this.#message = message;
   }
 
   get template() {
-    return createEmptyListTemplate(this.message);
+    return createEmptyListTemplate(this.#message);
   }
 
 }
