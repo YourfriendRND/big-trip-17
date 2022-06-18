@@ -1,4 +1,5 @@
 import NewEventFormView from '../view/new-event-form-view';
+import EmptyListView from '../view/empty-list-view';
 import OffersView from '../view/offers-view';
 import DestinationView from '../view/destination-view';
 import { render, RenderPosition, remove } from '../framework/render';
@@ -11,18 +12,24 @@ export default class NewEventPresener {
   #newEventDestinationDetailsComponent = null;
   #destinations = [];
   #offers = [];
+  #events = [];
   #changeData = null;
   #newEventButton = null;
+  #getEmptyListMessage = null;
+  #emptyListViewComponent = null;
 
-  constructor(changeHandler) {
-    this.#changeData = changeHandler;
-  }
 
-  init = (eventListContainer, newEventButton, destinations, offers) => {
-    this.#eventList = eventListContainer;
-    this.#newEventButton = newEventButton;
+  constructor(events, destinations, offers, eventListContainer, newEventButton, changeHandler, getMessage) {
+    this.#events = [...events];
     this.#destinations = [...destinations];
     this.#offers = [...offers];
+    this.#changeData = changeHandler;
+    this.#eventList = eventListContainer;
+    this.#newEventButton = newEventButton;
+    this.#getEmptyListMessage = getMessage;
+  }
+
+  init = () => {
 
     this.#newEventButton.disabled = true;
     this.#newEventFormComponent = new NewEventFormView(this.#destinations, this.#offers);
@@ -64,6 +71,14 @@ export default class NewEventPresener {
     if (this.#newEventButton) {
       this.#newEventButton.disabled = false;
     }
+    if (!this.#events.length) {
+      this.#emptyListViewComponent = new EmptyListView(this.#getEmptyListMessage());
+      render(this.#emptyListViewComponent, this.#eventList.element);
+    }
+  };
+
+  destroyEmptyView = () => {
+    remove(this.#emptyListViewComponent);
   };
 
 }

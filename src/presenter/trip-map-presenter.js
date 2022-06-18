@@ -3,6 +3,7 @@ import EventListView from '../view/event-list-view';
 import EmptyListView from '../view/empty-list-view';
 import EventPresenter from './event-presenter';
 import NewEventPresener from './new-event-presenter';
+import LoadingView from '../view/loading-view';
 import { remove, render, RenderPosition } from '../framework/render';
 import { compareEventsByPrice, compareEventsByDuration, getFilteredEvents } from '../util';
 import { FilterType, SortType, UserAction, UpdateType, EmptyListMessage } from '../project-constants';
@@ -22,6 +23,13 @@ export default class TripMapPresenter {
   #eventList = new EventListView();
   #eventPresenter = new Map();
   #newEventPresenter = null;
+  #preLoaderViewComponent = null;
+  #isLoading = true;
+  #downloadingState = {
+    EVENTS: false,
+    DESTINATIONS: false,
+    OFFERS: false,
+  };
 
   constructor(listContainer, newEventButton, eventModel, destinationModel, offerModel, filterModel) {
     this.#listContainer = listContainer;
@@ -31,6 +39,8 @@ export default class TripMapPresenter {
     this.#filterModel = filterModel;
     this.#newEventButton = newEventButton;
     this.#eventModel.addObserver(this.#handleModelEvent);
+    this.#destinationModel.addObserver(this.#handleModelEvent);
+    this.#offerModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
@@ -39,12 +49,21 @@ export default class TripMapPresenter {
   }
 
   init = () => {
+    if (this.#isLoading) {
+      this.#renderPreLoader();
+      return;
+    }
+
     this.#destinations = [...this.#destinationModel.destinations];
     this.#offers = [...this.#offerModel.offers];
     this.#events = getFilteredEvents(this.#filterModel.filter, this.events);
     this.#newEventButton.addEventListener('click', this.#createNewEvent);
-    this.#newEventPresenter = new NewEventPresener(this.#handleViewAction);
+    this.#newEventPresenter = new NewEventPresener(this.#events, this.#destinations, this.#offers, this.#eventList, this.#newEventButton, this.#handleViewAction, this.#getEmptyMessageByFilter);
     render(this.#eventList, this.#listContainer);
+    this.#renderEventTripBoard();
+  };
+
+  #renderEventTripBoard = () => {
     if (!this.#events.length) {
       this.#emptyListViewComponent = new EmptyListView(this.#getEmptyMessageByFilter());
       render(this.#emptyListViewComponent, this.#listContainer);
@@ -57,16 +76,26 @@ export default class TripMapPresenter {
 
   #clearListContainer = () => {
     remove(this.#emptyListViewComponent);
+    remove(this.#preLoaderViewComponent);
     this.#clearEventsList();
   };
 
-  #handleModelEvent = (type) => {
+  #handleModelEvent = (type, payload) => {
     switch (type) {
       case UpdateType.FULL: {
         this.#filterModel.setFilterType(FilterType.EVERYTHING);
         this.#clearListContainer();
         this.#resetSortType();
         this.init();
+        break;
+      }
+      case UpdateType.INIT: {
+        this.#downloadingState[payload] = true;
+        this.#isLoading = Object.values(this.#downloadingState).some((status) => !status);
+        if (!this.#isLoading) {
+          remove(this.#preLoaderViewComponent);
+          this.init();
+        }
         break;
       }
       default: {
@@ -106,6 +135,7 @@ export default class TripMapPresenter {
 
   #getAdaptEventToModel = (eventRow) => ({
     ...eventRow,
+    destination: {...this.#destinations.find((destination) => destination.name === eventRow.destination)},
     offers: eventRow.offers.map((offer) => offer.id)
   });
 
@@ -113,6 +143,11 @@ export default class TripMapPresenter {
     const eventPresenter = new EventPresenter(this.#eventList, this.#handleViewAction, this.#handleModeEventChange);
     eventPresenter.init(event, this.#destinations, this.#offers);
     this.#eventPresenter.set(event.id, eventPresenter);
+  };
+
+  #renderPreLoader = () => {
+    this.#preLoaderViewComponent = new LoadingView();
+    render(this.#preLoaderViewComponent, this.#listContainer);
   };
 
   #clearEventsList = () => {
@@ -158,8 +193,12 @@ export default class TripMapPresenter {
 
   // Создание новой точки маршрута
   #createNewEvent = () => {
-    this.#handleModeEventChange();
-    this.#newEventPresenter.init(this.#eventList, this.#newEventButton, this.#destinations, this.#offers);
+    remove(this.#emptyListViewComponent);
+    this.#newEventPresenter.destroyEmptyView();
+    if (this.#events.length > 0) {
+      this.#handleModeEventChange();
+    }
+    this.#newEventPresenter.init();
     this.#resetSortType();
   };
 
