@@ -38,4 +38,6 @@ export default class EventSortFormView extends AbstractView {
   resetCurrentSortType = () => {
     this.#currentSortType = SortType.SORT_BY_DAY.title;
   };
+
+  getCurrentSortType = () => this.#currentSortType;
 }

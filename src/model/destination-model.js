@@ -15,7 +15,7 @@ export default class DestinationModel extends Observable {
 
   init = async () => {
     try {
-      this.#destinations = await this.#eventsApi.destinations;
+      this.#destinations = await this.#eventsApi.getDestinations();
     } catch (err) {
       this.#destinations = [];
     }

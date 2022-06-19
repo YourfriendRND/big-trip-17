@@ -5,7 +5,7 @@ import EventPresenter from './event-presenter';
 import NewEventPresener from './new-event-presenter';
 import LoadingView from '../view/loading-view';
 import { remove, render, RenderPosition } from '../framework/render';
-import { compareEventsByPrice, compareEventsByDuration, getFilteredEvents } from '../util';
+import { compareEventsByPrice, compareEventsByDuration, getFilteredEvents, compareEventsByDay } from '../util';
 import { FilterType, SortType, UserAction, UpdateType, EmptyListMessage } from '../project-constants';
 
 export default class TripMapPresenter {
@@ -60,17 +60,18 @@ export default class TripMapPresenter {
     this.#newEventButton.addEventListener('click', this.#createNewEvent);
     this.#newEventPresenter = new NewEventPresener(this.#events, this.#destinations, this.#offers, this.#eventList, this.#newEventButton, this.#handleViewAction, this.#getEmptyMessageByFilter);
     render(this.#eventList, this.#listContainer);
-    this.#renderEventTripBoard();
-  };
-
-  #renderEventTripBoard = () => {
     if (!this.#events.length) {
       this.#emptyListViewComponent = new EmptyListView(this.#getEmptyMessageByFilter());
       render(this.#emptyListViewComponent, this.#listContainer);
       return;
     }
-
     this.#renderSort();
+    this.#sortEvents();
+    this.#renderEventTripBoard();
+  };
+
+
+  #renderEventTripBoard = () => {
     this.#events.forEach(this.#renderEvent);
   };
 
@@ -100,8 +101,10 @@ export default class TripMapPresenter {
       }
       default: {
         this.#clearListContainer();
-        this.#resetSortType();
-        this.init();
+        this.#eventSortForm.getCurrentSortType();
+        this.#events = getFilteredEvents(this.#filterModel.filter, this.events);
+        this.#sortEvents(this.#eventSortForm.getCurrentSortType());
+        this.#renderEventTripBoard();
       }
     }
   };
@@ -176,7 +179,7 @@ export default class TripMapPresenter {
         this.#events.sort(compareEventsByDuration);
         break;
       }
-      default: this.#events = [...this.events];
+      default: this.#events.sort(compareEventsByDay);
     }
   };
 

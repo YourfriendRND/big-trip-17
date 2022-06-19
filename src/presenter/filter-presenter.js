@@ -1,6 +1,7 @@
 import EventFilterFormView from '../view/filters-view';
 import TripInfoView from '../view/trip-info-view';
 import { remove, render, RenderPosition } from '../framework/render';
+import {getFilteredEvents} from '../util';
 
 export default class FilterPresenter {
   #eventModel = null;
@@ -25,7 +26,7 @@ export default class FilterPresenter {
     if (!this.#events.length) {
       return;
     }
-    this.#headerViewComponent = new TripInfoView(this.#events);
+    this.#headerViewComponent = new TripInfoView(getFilteredEvents(this.#filterModel.filter, this.#events));
     this.#filterViewComponent = new EventFilterFormView(this.#events, this.#filterModel.filter);
     render(this.#headerViewComponent, this.#headerContainer, RenderPosition.AFTERBEGIN);
     render(this.#filterViewComponent, this.#filterContainer);

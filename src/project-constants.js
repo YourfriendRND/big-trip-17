@@ -1,7 +1,14 @@
 const RestApiMethods = {
   GET: 'GET',
   POST: 'POST',
-  PUT: 'PUT'
+  PUT: 'PUT',
+  DELETE: 'DELETE'
+};
+
+const ServerEndpoin = {
+  POINTS: 'points',
+  DESTINATIONS: 'destinations',
+  OFFERS: 'offers'
 };
 
 const SortType = {
@@ -91,5 +98,6 @@ export {
   DEFAULT_EVENT_TYPE,
   RestApiMethods,
   ApiConfig,
-  DownloadingStateType
+  DownloadingStateType,
+  ServerEndpoin
 };

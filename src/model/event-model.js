@@ -1,5 +1,5 @@
 import Observable from '../framework/observable';
-import {isEventBeforeNextEvent, compareEventsByDay} from '../util';
+import {isEventBeforeNextEvent} from '../util';
 import { UpdateType, DownloadingStateType } from '../project-constants';
 
 export default class EventModel extends Observable {
@@ -16,7 +16,7 @@ export default class EventModel extends Observable {
 
   init = async () => {
     try {
-      const events = await this.#eventsApi.events;
+      const events = await this.#eventsApi.getEvents();
       this.#events = events.map(this.#adaptToClient);
     } catch (err) {
       this.#events = [];
@@ -46,13 +46,19 @@ export default class EventModel extends Observable {
    * Добавляет точку маршрута в модель
    * @param {Object} createdEvent - Созданный объект с данными о новой точки маршрута
    */
-  addEvent = (createdEvent) => {
-    createdEvent.id = this.#events.length;
-    const index = this.#events.findIndex((event) => isEventBeforeNextEvent(createdEvent, event));
-    this.#events = index === -1
-      ? [...this.#events, createdEvent]
-      : [...this.#events.slice(0, index), {...createdEvent, destination: createdEvent.destination.name}, ...this.#events.slice(index)]; // Решение с destination временное для задания 8.1
-    this._notify(UpdateType.FULL);
+  addEvent = async (createdEvent) => {
+    // createdEvent.id = this.#events.length;
+    try {
+      const response = await this.#eventsApi.createEvent(createdEvent);
+      const createdEventFromServer = this.#adaptToClient(response);
+      const index = this.#events.findIndex((event) => isEventBeforeNextEvent(createdEvent, event));
+      this.#events = index === -1
+        ? [...this.#events, createdEvent]
+        : [...this.#events.slice(0, index), createdEventFromServer, ...this.#events.slice(index)];
+      this._notify(UpdateType.FULL);
+    } catch (err) {
+      throw new Error('Can\'t create new event');
+    }
   };
 
   /**
@@ -66,7 +72,7 @@ export default class EventModel extends Observable {
       const updatedEventFromServer = this.#adaptToClient(response);
       this.#events = index === -1
         ? this.#events
-        : [...this.#events.slice(0, index), updatedEventFromServer, ...this.#events.slice(index + 1)].sort(compareEventsByDay); // Дополнительно нужно сортировать по дате в случае изменении даты
+        : [...this.#events.slice(0, index), updatedEventFromServer, ...this.#events.slice(index + 1)];
       this._notify(UpdateType.DEFAULT);
     } catch (err) {
       throw new Error('Can\'t update event');
@@ -77,12 +83,17 @@ export default class EventModel extends Observable {
    * Удаляет точку маршрута из модели
    * @param {Object} deletedEvent - Объект с данными точки маршрута, который необходимо удалить
    */
-  deleteEvent = (deletedEvent) => {
-    this.#events = this.#events.filter((event) => event.id !== deletedEvent.id);
-    if (!this.#events.length) {
-      this._notify(UpdateType.FULL);
-      return;
+  deleteEvent = async (deletedEvent) => {
+    try {
+      await this.#eventsApi.deleteEvent(deletedEvent);
+      this.#events = this.#events.filter((event) => event.id !== deletedEvent.id);
+      if (!this.#events.length) {
+        this._notify(UpdateType.FULL);
+        return;
+      }
+      this._notify();
+    } catch (err) {
+      throw new Error(`Can't delete event with id - ${deletedEvent.id}`);
     }
-    this._notify();
   };
 }

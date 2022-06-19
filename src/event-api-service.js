@@ -1,18 +1,12 @@
 import ApiService from './framework/api-service';
-import { RestApiMethods } from './project-constants';
+import { RestApiMethods, ServerEndpoin } from './project-constants';
 export default class EventApiService extends ApiService {
 
-  get events() {
-    return this._load({ url: 'points' }).then(ApiService.parseResponse);
-  }
+  getEvents = () => this._load({ url: ServerEndpoin.POINTS }).then(ApiService.parseResponse);
 
-  get destinations() {
-    return this._load({url: 'destinations'}).then(ApiService.parseResponse);
-  }
+  getDestinations = () => this._load({url: ServerEndpoin.DESTINATIONS }).then(ApiService.parseResponse);
 
-  get offers() {
-    return this._load({url: 'offers'}).then(ApiService.parseResponse);
-  }
+  getOffers = () => this._load({url: ServerEndpoin.OFFERS }).then(ApiService.parseResponse);
 
   updateEvent = async (event) => {
     const response = await this._load({
@@ -25,6 +19,26 @@ export default class EventApiService extends ApiService {
     const parsedResponse = await ApiService.parseResponse(response);
 
     return parsedResponse;
+  };
+
+  createEvent = async (event) => {
+    const response = await this._load({
+      url: ServerEndpoin.POINTS,
+      method: RestApiMethods.POST,
+      body: JSON.stringify(this.#adaptToServer(event)),
+      headers: new Headers({ 'Content-Type': 'application/json' })
+    });
+    const parsedResponse = await ApiService.parseResponse(response);
+
+    return parsedResponse;
+  };
+
+  deleteEvent = async (event) => {
+    const response = await this._load({
+      url: `${ServerEndpoin.POINTS}/${event.id}`,
+      method: RestApiMethods.DELETE,
+    });
+    return response;
   };
 
   #adaptToServer = (event) => {
