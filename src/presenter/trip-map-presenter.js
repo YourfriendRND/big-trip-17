@@ -4,9 +4,10 @@ import EmptyListView from '../view/empty-list-view';
 import EventPresenter from './event-presenter';
 import NewEventPresener from './new-event-presenter';
 import LoadingView from '../view/loading-view';
+import UiBlocker from '../framework/ui-blocker/ui-blocker';
 import { remove, render, RenderPosition } from '../framework/render';
 import { compareEventsByPrice, compareEventsByDuration, getFilteredEvents, compareEventsByDay } from '../util';
-import { FilterType, SortType, UserAction, UpdateType, EmptyListMessage } from '../project-constants';
+import { FilterType, SortType, UserAction, UpdateType, EmptyListMessage, UiBlockerTimeLimit } from '../project-constants';
 
 export default class TripMapPresenter {
   #listContainer = null;
@@ -30,6 +31,8 @@ export default class TripMapPresenter {
     DESTINATIONS: false,
     OFFERS: false,
   };
+
+  #uiBlocker = new UiBlocker(UiBlockerTimeLimit.LOWER_LIMIT, UiBlockerTimeLimit.UPPER_LIMIT);
 
   constructor(listContainer, newEventButton, eventModel, destinationModel, offerModel, filterModel) {
     this.#listContainer = listContainer;
@@ -70,7 +73,6 @@ export default class TripMapPresenter {
     this.#renderEventTripBoard();
   };
 
-
   #renderEventTripBoard = () => {
     this.#events.forEach(this.#renderEvent);
   };
@@ -82,12 +84,15 @@ export default class TripMapPresenter {
   };
 
   #handleModelEvent = (type, payload) => {
+    this.#uiBlocker.block();
     switch (type) {
       case UpdateType.FULL: {
         this.#filterModel.setFilterType(FilterType.EVERYTHING);
         this.#clearListContainer();
         this.#resetSortType();
+        this.#newEventPresenter.destroy();
         this.init();
+
         break;
       }
       case UpdateType.INIT: {
@@ -101,27 +106,42 @@ export default class TripMapPresenter {
       }
       default: {
         this.#clearListContainer();
-        this.#eventSortForm.getCurrentSortType();
         this.#events = getFilteredEvents(this.#filterModel.filter, this.events);
         this.#sortEvents(this.#eventSortForm.getCurrentSortType());
         this.#renderEventTripBoard();
       }
     }
+    this.#uiBlocker.unblock();
   };
 
-  #handleViewAction = (userActionType, update) => {
+  #handleViewAction = async (userActionType, update) => {
     const adaptedEventToModel = this.#getAdaptEventToModel(update);
     switch (userActionType) {
       case UserAction.ADD_EVENT: {
-        this.#eventModel.addEvent(adaptedEventToModel);
+        try {
+          this.#newEventPresenter.setSaving();
+          await this.#eventModel.addEvent(adaptedEventToModel);
+        } catch (err) {
+          this.#newEventPresenter.setAborting();
+        }
         break;
       }
       case UserAction.DELETE_EVENT: {
-        this.#eventModel.deleteEvent(adaptedEventToModel);
+        try {
+          this.#eventPresenter.get(update.id).setDelitingEditForm();
+          await this.#eventModel.deleteEvent(adaptedEventToModel);
+        } catch (err) {
+          this.#eventPresenter.get(update.id).setAborting();
+        }
         break;
       }
       case UserAction.UPDATE_EVENT: {
-        this.#eventModel.updateEvent(adaptedEventToModel);
+        try {
+          this.#eventPresenter.get(update.id).setSavingEditForm();
+          await this.#eventModel.updateEvent(adaptedEventToModel);
+        } catch (err) {
+          this.#eventPresenter.get(update.id).setAborting();
+        }
         break;
       }
       default: throw new Error('Unknown user action');

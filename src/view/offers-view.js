@@ -1,12 +1,13 @@
 import AbstractView from '../framework/view/abstract-view';
 import { DEFAULT_EVENT_TYPE } from '../project-constants';
 
-const createOffersTemplate = (availableOffers, { type = DEFAULT_EVENT_TYPE, offers = [] }) => `<section class="event__section  event__section--offers">
+const createOffersTemplate = (availableOffers, { type = DEFAULT_EVENT_TYPE, offers = [] }, isDisabled) => `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
       ${type
     ? availableOffers.find((offerType) => offerType.type === type).offers.map((currentOffer) => `<div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="${currentOffer.id}" type="checkbox" name="${currentOffer.title}" ${offers.find((offer) => offer.id === currentOffer.id) ? 'checked' : ''}>
+        <input class="event__offer-checkbox  visually-hidden" id="${currentOffer.id}" type="checkbox" name="${currentOffer.title}"
+        ${offers.find((offer) => offer.id === currentOffer.id) ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
         <label class="event__offer-label" for="${currentOffer.id}">
           <span class="event__offer-title">${currentOffer.title}</span>
           &plus;&euro;&nbsp;
@@ -58,21 +59,26 @@ const createOffersTemplate = (availableOffers, { type = DEFAULT_EVENT_TYPE, offe
   </section>`;
 
 export default class OffersView extends AbstractView {
+  #isDisabled = false;
   #event = null;
   #availableOffers = [];
-  constructor(availableOffers, event) {
+  constructor(availableOffers, event, isDisabledStatus) {
     super();
     this.#event = event ? event : {};
     this.#availableOffers = [...availableOffers];
+    this.#isDisabled = isDisabledStatus;
   }
 
   get template() {
-    return createOffersTemplate(this.#availableOffers, this.#event);
+    return createOffersTemplate(this.#availableOffers, this.#event, this.#isDisabled);
   }
 
   /**
    * Получение всех выбранных доп.опций пользователем
    * @returns {Array} Массив id доп.опций
    */
-  getCheckedOffers = () => Array.from(this.element.querySelectorAll('.event__offer-checkbox')).filter((element) => element.checked).map((element) => ({id: Number(element.id)}));
+  getCheckedOffers = () => Array.from(this.element.querySelectorAll('.event__offer-checkbox')).filter((element) => element.checked).map((element) => ({
+    id: Number(element.id),
+    type: this.#event.type
+  }));
 }

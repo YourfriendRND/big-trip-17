@@ -11,13 +11,14 @@ const createNewEventFormTemplate = (destinations, eventTypes, event = null) => `
           <span class="visually-hidden">Choose event type</span>
           <img class="event__type-icon" width="17" height="17" src="img/icons/${event ? event.type : 'Flight'}.png" alt="Event type icon">
         </label>
-        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${event && event.isDisabled ? 'disabled' : ''}>
 
         <div class="event__type-list">
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Event type</legend>
             ${eventTypes.map((type) => ` <div class="event__type-item">
-              <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${event && event.type === type ? 'checked' : ''}>
+              <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}"
+              ${event && event.type === type ? 'checked' : ''} ${event && event.isDisabled ? 'disabled' : ''}>
               <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type.charAt(0).toUpperCase() + type.slice(1)}</label>
             </div>`).join('')}
           </fieldset>
@@ -28,7 +29,8 @@ const createNewEventFormTemplate = (destinations, eventTypes, event = null) => `
         <label class="event__label  event__type-output" for="event-destination-1">
           ${event ? event.type : 'Flight'}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${event ? event.destination : 'Geneva'}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination"
+        value="${event ? event.destination : 'Geneva'}" list="destination-list-1" ${event && event.isDisabled ? 'disabled' : ''}>
         <datalist id="destination-list-1">
           ${destinations.map((item) => `<option value="${item.name}"></option>`).join('')}
         </datalist>
@@ -36,10 +38,10 @@ const createNewEventFormTemplate = (destinations, eventTypes, event = null) => `
 
       <div class="event__field-group  event__field-group--time">
         <label class="visually-hidden" for="event-start-time-1">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="19/03/19 00:00">
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="19/03/19 00:00" ${event && event.isDisabled ? 'disabled' : ''}>
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="19/03/19 00:00">
+        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="19/03/19 00:00" ${event && event.isDisabled ? 'disabled' : ''}>
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -47,10 +49,11 @@ const createNewEventFormTemplate = (destinations, eventTypes, event = null) => `
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="number" pattern="\\/[0-9]/" name="event-price" value="${event ? event.basePrice : ''}">
+        <input class="event__input  event__input--price" id="event-price-1" type="number" pattern="\\/[0-9]/" name="event-price"
+        value="${event ? event.basePrice : ''}" ${event && event.isDisabled ? 'disabled' : ''}>
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+      <button class="event__save-btn  btn  btn--blue" type="submit" ${event && event.isDisabled ? 'disabled' : ''}>${event && event.isSaving ? 'Saving' : 'Save'}</button>
       <button class="event__reset-btn" type="reset">Cancel</button>
     </header>
     <section class="event__details"></section>
@@ -103,11 +106,26 @@ export default class NewEventFormView extends AbstractStatefulView {
     isFavorite: false,
     offers: [],
     type: 'flight',
+    isDisabled: false,
+    isSaving: false,
   });
 
-  #parseStateToEvent = (state) => ({...state});
+  #parseStateToEvent = (state) => {
+    const event = {...state};
 
-  #parseEventToState = (event) => ({...event});
+    delete event.isDisabled;
+    delete event.isSaving;
+
+    return event;
+  };
+
+  #parseEventToState = (event) => ({
+    ...event,
+    isDisabled: false,
+    isSaving: false,
+  });
+
+  getCurrentState = () => (this.#parseStateToEvent(this._state));
 
   setCancelClickHandler = (callback) => {
     this._callback.cancel = callback;

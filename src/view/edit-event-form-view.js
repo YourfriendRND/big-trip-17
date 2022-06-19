@@ -4,7 +4,7 @@ import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
-const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destination}, destinations, eventTypes) => `<li class="trip-events__item">
+const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destination, isSaving, isDeliting, isDisabled}, destinations, eventTypes) => `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
@@ -12,7 +12,7 @@ const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destina
             <span class="visually-hidden">Choose event type</span>
             <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
           </label>
-          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${isDisabled ? 'disabled' : ''}>
 
           <div class="event__type-list">
             <fieldset class="event__type-group">
@@ -29,7 +29,8 @@ const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destina
           <label class="event__label  event__type-output" for="event-destination-1">
             ${type}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
+          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination"
+          value="${destination}" list="destination-list-1" ${isDisabled ? 'disabled' : ''}>
           <datalist id="destination-list-1">
             ${destinations.map((item) => `<option value="${item.name}"></option>`).join('')}
           </datalist>
@@ -37,10 +38,10 @@ const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destina
 
         <div class="event__field-group  event__field-group--time">
           <label class="visually-hidden" for="event-start-time-1">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${getDateTimeForEdit(dateFrom)}">
+          <input class="event__input  event__input--time" id="event-start-time-1" ${isDisabled ? 'disabled' : ''} type="text" name="event-start-time" value="${getDateTimeForEdit(dateFrom)}">
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${getDateTimeForEdit(dateTo)}">
+          <input class="event__input  event__input--time" id="event-end-time-1" ${isDisabled ? 'disabled' : ''} type="text" name="event-end-time" value="${getDateTimeForEdit(dateTo)}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -48,12 +49,12 @@ const createEditEventFormTemplate = ({basePrice, type, dateFrom, dateTo, destina
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="number" pattern="\\/[0-9]/" name="event-price" value="${basePrice}">
+          <input class="event__input  event__input--price" id="event-price-1" type="number" pattern="\\/[0-9]/" name="event-price" value="${basePrice}" ${isDisabled ? 'disabled' : ''}>
         </div>
 
-        <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Delete</button>
-        <button class="event__rollup-btn" type="button">
+        <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+        <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${isDeliting ? 'Deliting...' : 'Delete'}</button>
+        <button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
           <span class="visually-hidden">Open event</span>
         </button>
       </header>
@@ -103,9 +104,24 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.setDeleteEventClickHandler(this._callback.deleteEvent);
   };
 
-  #parseEventToState = (event) => ({...event});
+  #parseEventToState = (event) => ({
+    ...event,
+    isDisabled: false,
+    isSaving: false,
+    isDeliting: false
+  });
 
-  #parseStateToEvent = (state) => ({...state});
+  #parseStateToEvent = (state) => {
+    const event = {...state};
+
+    delete event.isDisabled;
+    delete event.isSaving;
+    delete event.isDeliting;
+
+    return event;
+  };
+
+  getCurrentState = () => (this.#parseStateToEvent(this._state));
 
   setChangeTypeEventHandler = (callback) => {
     this._callback.changeType = callback;

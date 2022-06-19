@@ -53,8 +53,8 @@ export default class NewEventPresener {
     this.#newEventFormComponent.setSubmitEventClickHandler(this.#saveEvent);
   };
 
-  #rerenderNewEventForm = (updatedEvent) => {
-    this.#newEventOfferComponent = new OffersView(this.#offers, updatedEvent);
+  #rerenderNewEventForm = (updatedEvent, offerDisabled = false) => {
+    this.#newEventOfferComponent = new OffersView(this.#offers, updatedEvent, offerDisabled);
     this.#newEventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === updatedEvent.destination));
     render(this.#newEventOfferComponent, this.#newEventFormComponent.element.querySelector('.event__details'));
     render(this.#newEventDestinationDetailsComponent, this.#newEventFormComponent.element.querySelector('.event__details'));
@@ -63,7 +63,6 @@ export default class NewEventPresener {
   #saveEvent = (createdEvent) => {
     createdEvent.offers = this.#newEventOfferComponent.getCheckedOffers();
     this.#changeData(UserAction.ADD_EVENT, createdEvent);
-    this.destroy();
   };
 
   destroy = () => {
@@ -79,6 +78,32 @@ export default class NewEventPresener {
 
   destroyEmptyView = () => {
     remove(this.#emptyListViewComponent);
+  };
+
+  setSaving = () => {
+    const updatingEvent = this.#newEventFormComponent.getCurrentState();
+    const offers = this.#newEventOfferComponent.getCheckedOffers();
+    this.#newEventFormComponent.updateElement({
+      ...updatingEvent,
+      offers: offers,
+      isDisabled: true,
+      isSaving: true
+    });
+    this.#rerenderNewEventForm(updatingEvent, true);
+  };
+
+  setAborting = () => {
+    const resetNewFormState = () => {
+      const updatingEvent = this.#newEventFormComponent.getCurrentState();
+      this.#newEventFormComponent.updateElement({
+        ...updatingEvent,
+        isDisabled: false,
+        isSaving: false
+      });
+      this.#rerenderNewEventForm(updatingEvent);
+    };
+
+    this.#newEventFormComponent.shake(resetNewFormState);
   };
 
 }

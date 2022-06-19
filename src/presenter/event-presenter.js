@@ -70,7 +70,7 @@ export default class EventPresenter {
     // Обработчик кнопки save
     this.#editEventFormComponent.setEditSubmitHandler((updatedEvent) => {
       updatedEvent.offers = this.#eventOffersComponent.getCheckedOffers();
-      this.#replaceFormToEventItem();
+      //this.#replaceFormToEventItem();
       this.#changeData(UserAction.UPDATE_EVENT, updatedEvent);
       document.removeEventListener('keydown', this.#onEcsKeyDown);
     });
@@ -109,8 +109,8 @@ export default class EventPresenter {
    * Метод ререндерит форму редактирования в соответствии с обновлёнными данными точки маршрута
    * @param {Object} updatedEvent - объект с обновлёнными данными точки маршрута
    */
-  #rerenderEditForm = (updatedEvent) => {
-    this.#eventOffersComponent = new OffersView(this.#offers, updatedEvent);
+  #rerenderEditForm = (updatedEvent, offerDisabled = false) => {
+    this.#eventOffersComponent = new OffersView(this.#offers, updatedEvent, offerDisabled);
     this.#eventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === updatedEvent.destination));
     render(this.#eventOffersComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
     render(this.#eventDestinationDetailsComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
@@ -162,5 +162,50 @@ export default class EventPresenter {
       this.#replaceFormToEventItem();
       document.removeEventListener('keydown', this.#onEcsKeyDown);
     }
+  };
+
+  setSavingEditForm = () => {
+    if (this.#mode === Mode.EDITING) {
+      const updatingEvent = this.#editEventFormComponent.getCurrentState();
+
+      this.#editEventFormComponent.updateElement({
+        ...updatingEvent,
+        isDisabled: true,
+        isSaving: true
+      });
+      this.#rerenderEditForm(updatingEvent, true);
+    }
+  };
+
+  setDelitingEditForm = () => {
+    if (this.#mode === Mode.EDITING) {
+      const updatingEvent = this.#editEventFormComponent.getCurrentState();
+
+      this.#editEventFormComponent.updateElement({
+        ...updatingEvent,
+        isDisabled: true,
+        isDeliting: true
+      });
+      this.#rerenderEditForm(updatingEvent, true);
+    }
+  };
+
+  setAborting = () => {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#eventViewComponent.shake();
+      return;
+    }
+    const resetEditFormState = () => {
+      const updatingEvent = this.#editEventFormComponent.getCurrentState();
+      this.#editEventFormComponent.updateElement({
+        ...updatingEvent,
+        isDisabled: false,
+        isDeliting: false,
+        isSaving: false
+      });
+      this.#rerenderEditForm(updatingEvent);
+    };
+
+    this.#editEventFormComponent.shake(resetEditFormState);
   };
 }

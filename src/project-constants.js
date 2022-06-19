@@ -86,6 +86,11 @@ const ApiConfig = {
   END_POINT: 'https://17.ecmascript.pages.academy/big-trip'
 };
 
+const UiBlockerTimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
+
 export {
   SortType,
   FilterType,
@@ -99,5 +104,6 @@ export {
   RestApiMethods,
   ApiConfig,
   DownloadingStateType,
-  ServerEndpoin
+  ServerEndpoin,
+  UiBlockerTimeLimit
 };
