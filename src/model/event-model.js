@@ -47,13 +47,12 @@ export default class EventModel extends Observable {
    * @param {Object} createdEvent - Созданный объект с данными о новой точки маршрута
    */
   addEvent = async (createdEvent) => {
-    // createdEvent.id = this.#events.length;
     try {
       const response = await this.#eventsApi.createEvent(createdEvent);
       const createdEventFromServer = this.#adaptToClient(response);
       const index = this.#events.findIndex((event) => isEventBeforeNextEvent(createdEvent, event));
       this.#events = index === -1
-        ? [...this.#events, createdEvent]
+        ? [...this.#events, createdEventFromServer]
         : [...this.#events.slice(0, index), createdEventFromServer, ...this.#events.slice(index)];
       this._notify(UpdateType.FULL);
     } catch (err) {

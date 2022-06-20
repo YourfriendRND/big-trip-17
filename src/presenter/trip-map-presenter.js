@@ -84,7 +84,6 @@ export default class TripMapPresenter {
   };
 
   #handleModelEvent = (type, payload) => {
-    this.#uiBlocker.block();
     switch (type) {
       case UpdateType.FULL: {
         this.#filterModel.setFilterType(FilterType.EVERYTHING);
@@ -111,10 +110,10 @@ export default class TripMapPresenter {
         this.#renderEventTripBoard();
       }
     }
-    this.#uiBlocker.unblock();
   };
 
   #handleViewAction = async (userActionType, update) => {
+    this.#uiBlocker.block();
     const adaptedEventToModel = this.#getAdaptEventToModel(update);
     switch (userActionType) {
       case UserAction.ADD_EVENT: {
@@ -146,6 +145,7 @@ export default class TripMapPresenter {
       }
       default: throw new Error('Unknown user action');
     }
+    this.#uiBlocker.unblock();
   };
 
   #getAdaptEventToRender = (eventRow) => ({
