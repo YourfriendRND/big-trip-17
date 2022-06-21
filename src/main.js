@@ -20,7 +20,7 @@ const offerModel = new OfferModel(api);
 
 const filterModel = new FilterModel();
 
-const filterPresenter = new FilterPresenter(tripMainBlock, filterBlock, eventModel, filterModel);
+const filterPresenter = new FilterPresenter(tripMainBlock, filterBlock, eventModel, filterModel, offerModel);
 const tripMapPresenter = new TripMapPresenter(tripEventsBlock, newEventButton, eventModel, destinationModel, offerModel, filterModel);
 eventModel.init();
 destinationModel.init();
