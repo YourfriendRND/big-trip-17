@@ -1,22 +1,29 @@
 import TripMapPresenter from './presenter/trip-map-presenter';
-import TripHeaderPresenter from './presenter/trip-header-presenter';
+import FilterPresenter from './presenter/filter-presenter';
 import EventModel from './model/event-model';
 import DestinationModel from './model/destination-model';
 import OfferModel from './model/offer-model';
-import destinationsMock from './mock/destination';
-import eventsMock from './mock/event';
-import offersMock from './mock/offers';
+import FilterModel from './model/filter-model';
+import EventApiService from './event-api-service';
+import { ApiConfig } from './project-constants';
+
+const api = new EventApiService(ApiConfig.END_POINT, ApiConfig.AUTHORIZATION);
 
 const tripMainBlock = document.querySelector('.trip-main');
 const filterBlock = document.querySelector('.trip-controls__filters');
 const tripEventsBlock = document.querySelector('.trip-events');
+const newEventButton = document.querySelector('.trip-main__event-add-btn');
 
-const destinationModel = new DestinationModel(destinationsMock);
-const eventModel = new EventModel(eventsMock);
-const offerModel = new OfferModel(offersMock);
+const eventModel = new EventModel(api);
+const destinationModel = new DestinationModel(api);
+const offerModel = new OfferModel(api);
 
-const tripHeaderPresenter = new TripHeaderPresenter(tripMainBlock, filterBlock, eventModel);
-const tripMapPresenter = new TripMapPresenter(tripEventsBlock, eventModel, destinationModel, offerModel);
+const filterModel = new FilterModel();
 
-tripHeaderPresenter.init();
+const filterPresenter = new FilterPresenter(tripMainBlock, filterBlock, eventModel, filterModel, offerModel);
+const tripMapPresenter = new TripMapPresenter(tripEventsBlock, newEventButton, eventModel, destinationModel, offerModel, filterModel);
+eventModel.init();
+destinationModel.init();
+offerModel.init();
 tripMapPresenter.init();
+filterPresenter.init();
