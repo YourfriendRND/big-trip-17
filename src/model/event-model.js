@@ -24,24 +24,6 @@ export default class EventModel extends Observable {
     this._notify(UpdateType.INIT, DownloadingStateType.EVENTS);
   };
 
-  #adaptToClient = (event) => {
-    const adaptEvent = {
-      ...event,
-      basePrice: event['base_price'],
-      dateFrom: event['date_from'],
-      destination: event.destination.name,
-      dateTo: event['date_to'],
-      isFavorite: event['is_favorite'],
-    };
-
-    delete adaptEvent['base_price'];
-    delete adaptEvent['date_from'];
-    delete adaptEvent['date_to'];
-    delete adaptEvent['is_favorite'];
-
-    return adaptEvent;
-  };
-
   /**
    * Добавляет точку маршрута в модель
    * @param {Object} createdEvent - Созданный объект с данными о новой точки маршрута
@@ -72,7 +54,7 @@ export default class EventModel extends Observable {
       this.#events = index === -1
         ? this.#events
         : [...this.#events.slice(0, index), updatedEventFromServer, ...this.#events.slice(index + 1)];
-      this._notify(UpdateType.DEFAULT);
+      this._notify(UpdateType.PATCH);
     } catch (err) {
       throw new Error('Can\'t update event');
     }
@@ -94,5 +76,23 @@ export default class EventModel extends Observable {
     } catch (err) {
       throw new Error(`Can't delete event with id - ${deletedEvent.id}`);
     }
+  };
+
+  #adaptToClient = (event) => {
+    const adaptEvent = {
+      ...event,
+      basePrice: event['base_price'],
+      dateFrom: event['date_from'],
+      destination: event.destination.name,
+      dateTo: event['date_to'],
+      isFavorite: event['is_favorite'],
+    };
+
+    delete adaptEvent['base_price'];
+    delete adaptEvent['date_from'];
+    delete adaptEvent['date_to'];
+    delete adaptEvent['is_favorite'];
+
+    return adaptEvent;
   };
 }

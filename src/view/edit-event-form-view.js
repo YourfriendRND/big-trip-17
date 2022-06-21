@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
-import { getDateTimeForEdit } from '../util';
+import { getDateTimeForEdit, isPositiveIntegerPrice } from '../util';
 import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/flatpickr.min.css';
@@ -83,15 +83,6 @@ export default class EditEventFormView extends AbstractStatefulView {
     return createEditEventFormTemplate(this._state, this.#destinations, this.#eventTypes);
   }
 
-  removeElement = () => {
-    super.removeElement();
-
-    if (this.#datepicker) {
-      this.#datepicker.destroy();
-      this.#datepicker = null;
-    }
-  };
-
   _restoreHandlers = () => {
     this.setChangeTypeEventHandler(this._callback.changeType);
     this.setChangeDestinationHandler(this._callback.changeDest);
@@ -102,23 +93,6 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.#setDatePickerFinishDate();
     this.setChangePriceHandler(this._callback.changePrice);
     this.setDeleteEventClickHandler(this._callback.deleteEvent);
-  };
-
-  #parseEventToState = (event) => ({
-    ...event,
-    isDisabled: false,
-    isSaving: false,
-    isDeliting: false
-  });
-
-  #parseStateToEvent = (state) => {
-    const event = {...state};
-
-    delete event.isDisabled;
-    delete event.isSaving;
-    delete event.isDeliting;
-
-    return event;
   };
 
   getCurrentState = () => (this.#parseStateToEvent(this._state));
@@ -153,18 +127,51 @@ export default class EditEventFormView extends AbstractStatefulView {
     this._callback.changeDateTime = callback;
   };
 
-  reset = (event) => {
-    this.updateElement(this.#parseEventToState(event));
-  };
-
   setChangePriceHandler = (callback) => {
     this._callback.changePrice = callback;
     this.element.querySelector('.event__input--price').addEventListener('change', this.#changePriceHandler);
   };
 
+  reset = (event) => {
+    this.updateElement(this.#parseEventToState(event));
+  };
+
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#datepicker) {
+      this.#datepicker.destroy();
+      this.#datepicker = null;
+    }
+  };
+
+  #parseEventToState = (event) => ({
+    ...event,
+    isDisabled: false,
+    isSaving: false,
+    isDeliting: false
+  });
+
+  #parseStateToEvent = (state) => {
+    const event = {...state};
+
+    delete event.isDisabled;
+    delete event.isSaving;
+    delete event.isDeliting;
+
+    return event;
+  };
+
   #changePriceHandler = (evt) => {
+    const price = Number(evt.target.value);
+    const submitBtn = this.element.querySelector('.event__save-btn');
+    if(!isPositiveIntegerPrice(price)) {
+      submitBtn.disabled = true;
+      evt.target.setCustomValidity('incorrect price, please input a positive and integer number');
+      return;
+    }
     this.updateElement({
-      basePrice: Number(evt.target.value)
+      basePrice: price
     });
     this._callback.changePrice(this.#parseStateToEvent(this._state));
   };
@@ -238,5 +245,4 @@ export default class EditEventFormView extends AbstractStatefulView {
   });
 
   #isDestinationValid = (destinationValue) => this.#destinations.some((destination) => destination.name === destinationValue);
-
 }

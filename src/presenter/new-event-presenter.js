@@ -30,7 +30,6 @@ export default class NewEventPresener {
   }
 
   init = () => {
-
     this.#newEventButton.disabled = true;
     this.#newEventFormComponent = new NewEventFormView(this.#destinations, this.#offers);
     render(this.#newEventFormComponent, this.#eventList.element, RenderPosition.AFTERBEGIN);
@@ -51,29 +50,6 @@ export default class NewEventPresener {
     this.#newEventFormComponent.setChangePriceHandler(this.#rerenderNewEventForm);
 
     this.#newEventFormComponent.setSubmitEventClickHandler(this.#saveEvent);
-  };
-
-  #rerenderNewEventForm = (updatedEvent, offerDisabled = false) => {
-    this.#newEventOfferComponent = new OffersView(this.#offers, updatedEvent, offerDisabled);
-    this.#newEventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === updatedEvent.destination));
-    render(this.#newEventOfferComponent, this.#newEventFormComponent.element.querySelector('.event__details'));
-    render(this.#newEventDestinationDetailsComponent, this.#newEventFormComponent.element.querySelector('.event__details'));
-  };
-
-  #saveEvent = (createdEvent) => {
-    createdEvent.offers = this.#newEventOfferComponent.getCheckedOffers();
-    this.#changeData(UserAction.ADD_EVENT, createdEvent);
-  };
-
-  destroy = () => {
-    remove(this.#newEventFormComponent);
-    if (this.#newEventButton) {
-      this.#newEventButton.disabled = false;
-    }
-    if (!this.#events.length) {
-      this.#emptyListViewComponent = new EmptyListView(this.#getEmptyListMessage());
-      render(this.#emptyListViewComponent, this.#eventList.element);
-    }
   };
 
   destroyEmptyView = () => {
@@ -106,4 +82,26 @@ export default class NewEventPresener {
     this.#newEventFormComponent.shake(resetNewFormState);
   };
 
+  destroy = () => {
+    remove(this.#newEventFormComponent);
+    if (this.#newEventButton) {
+      this.#newEventButton.disabled = false;
+    }
+    if (!this.#events.length) {
+      this.#emptyListViewComponent = new EmptyListView(this.#getEmptyListMessage());
+      render(this.#emptyListViewComponent, this.#eventList.element);
+    }
+  };
+
+  #rerenderNewEventForm = (updatedEvent, offerDisabled = false) => {
+    this.#newEventOfferComponent = new OffersView(this.#offers, updatedEvent, offerDisabled);
+    this.#newEventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === updatedEvent.destination));
+    render(this.#newEventOfferComponent, this.#newEventFormComponent.element.querySelector('.event__details'));
+    render(this.#newEventDestinationDetailsComponent, this.#newEventFormComponent.element.querySelector('.event__details'));
+  };
+
+  #saveEvent = (createdEvent) => {
+    createdEvent.offers = this.#newEventOfferComponent.getCheckedOffers();
+    this.#changeData(UserAction.ADD_EVENT, createdEvent);
+  };
 }

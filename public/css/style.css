@@ -669,6 +669,9 @@ main {
     text-align: center; }
   .event__input--price {
     width: 66px; }
+    .event__input--price:invalid {
+      border: 1px solid red;
+    }
     .event__input--destination:invalid {
       border: 1px solid red;
     }

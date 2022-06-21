@@ -1,6 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import flatpickr from 'flatpickr';
-import { getDateTimeForEdit } from '../util';
+import { getDateTimeForEdit, isPositiveIntegerPrice } from '../util';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const createNewEventFormTemplate = (destinations, eventTypes, event = null) => `<li class="trip-events__item">
@@ -78,15 +78,6 @@ export default class NewEventFormView extends AbstractStatefulView {
     return createNewEventFormTemplate(this.#destinations, this.#eventTypes, this._state);
   }
 
-  removeElement = () => {
-    super.removeElement();
-
-    if (this.#datepicker) {
-      this.#datepicker.destroy();
-      this.#datepicker = null;
-    }
-  };
-
   _restoreHandlers = () => {
     this.setSubmitEventClickHandler(this._callback.submit);
     this.setCancelClickHandler(this._callback.cancel);
@@ -96,6 +87,53 @@ export default class NewEventFormView extends AbstractStatefulView {
     this.#setDatepickerStartDate();
     this.#setDatePickerFinishDate();
     this.setCloseEcsHandler(this._callback.close);
+  };
+
+  getCurrentState = () => (this.#parseStateToEvent(this._state));
+
+  setCancelClickHandler = (callback) => {
+    this._callback.cancel = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#cancelClickHandler);
+  };
+
+  setCloseEcsHandler = (callback) => {
+    this._callback.close = callback;
+    document.addEventListener('keydown', this.#onEcsKeyDown);
+  };
+
+  setChangeDestinationHandler = (callback) => {
+    this._callback.changeDest = callback;
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#changeDestinationHandler);
+  };
+
+  setChangeTypeEventHandler = (callback) => {
+    this._callback.changeType = callback;
+    const allEventTypeButtons = this.element.querySelectorAll('.event__type-input');
+    allEventTypeButtons.forEach((element) => element.addEventListener('click', this.#changeTypeEvent));
+  };
+
+  // методы для даты
+  setChangeDateTime = (callback) => {
+    this._callback.changeDateTime = callback;
+  };
+
+  setChangePriceHandler = (callback) => {
+    this._callback.changePrice = callback;
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#changePriceHandler);
+  };
+
+  setSubmitEventClickHandler = (callback) => {
+    this._callback.submit = callback;
+    this.element.querySelector('.event__save-btn').addEventListener('click', this.#submitEventClickHandler);
+  };
+
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#datepicker) {
+      this.#datepicker.destroy();
+      this.#datepicker = null;
+    }
   };
 
   #getNewEventData = () => ({
@@ -125,30 +163,6 @@ export default class NewEventFormView extends AbstractStatefulView {
     isSaving: false,
   });
 
-  getCurrentState = () => (this.#parseStateToEvent(this._state));
-
-  setCancelClickHandler = (callback) => {
-    this._callback.cancel = callback;
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#cancelClickHandler);
-  };
-
-  setCloseEcsHandler = (callback) => {
-    this._callback.close = callback;
-    document.addEventListener('keydown', this.#onEcsKeyDown);
-  };
-
-  #cancelClickHandler = () => {
-    this._callback.cancel();
-    document.removeEventListener('keydown', this.#onEcsKeyDown);
-    this._state = null;
-  };
-
-  setChangeTypeEventHandler = (callback) => {
-    this._callback.changeType = callback;
-    const allEventTypeButtons = this.element.querySelectorAll('.event__type-input');
-    allEventTypeButtons.forEach((element) => element.addEventListener('click', this.#changeTypeEvent));
-  };
-
   #changeTypeEvent = (evt) => {
     this.updateElement({
       type: evt.target.value,
@@ -157,9 +171,10 @@ export default class NewEventFormView extends AbstractStatefulView {
     this._callback.changeType(this.#parseStateToEvent(this._state));
   };
 
-  setChangeDestinationHandler = (callback) => {
-    this._callback.changeDest = callback;
-    this.element.querySelector('.event__input--destination').addEventListener('change', this.#changeDestinationHandler);
+  #cancelClickHandler = () => {
+    this._callback.cancel();
+    document.removeEventListener('keydown', this.#onEcsKeyDown);
+    this._state = null;
   };
 
   #changeDestinationHandler = (evt) => {
@@ -174,11 +189,6 @@ export default class NewEventFormView extends AbstractStatefulView {
       destination: evt.target.value
     });
     this._callback.changeDest(this.#parseStateToEvent(this._state));
-  };
-
-  // методы для даты
-  setChangeDateTime = (callback) => {
-    this._callback.changeDateTime = callback;
   };
 
   #setDatepickerStartDate = () => {
@@ -211,22 +221,18 @@ export default class NewEventFormView extends AbstractStatefulView {
     this._callback.changeDateTime(this.#parseStateToEvent(this._state));
   });
 
-
-  setChangePriceHandler = (callback) => {
-    this._callback.changePrice = callback;
-    this.element.querySelector('.event__input--price').addEventListener('change', this.#changePriceHandler);
-  };
-
   #changePriceHandler = (evt) => {
+    const price = Number(evt.target.value);
+    const submitBtn = this.element.querySelector('.event__save-btn');
+    if(!isPositiveIntegerPrice(price)) {
+      submitBtn.disabled = true;
+      evt.target.setCustomValidity('incorrect price, please input a positive and integer number');
+      return;
+    }
     this.updateElement({
-      basePrice: Number(evt.target.value)
+      basePrice: price
     });
     this._callback.changePrice(this.#parseStateToEvent(this._state));
-  };
-
-  setSubmitEventClickHandler = (callback) => {
-    this._callback.submit = callback;
-    this.element.querySelector('.event__save-btn').addEventListener('click', this.#submitEventClickHandler);
   };
 
   #submitEventClickHandler = (evt) => {

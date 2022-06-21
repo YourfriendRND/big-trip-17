@@ -55,11 +55,6 @@ export default class EventItemView extends AbstractView {
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#showEditFormClickHandler);
   };
 
-  #showEditFormClickHandler = (evt) => {
-    evt.preventDefault();
-    this._callback.click();
-  };
-
   // Favorite
   setFavoriteClickHandler = (callback) => {
     this._callback.favoriteClick = callback;
@@ -69,5 +64,10 @@ export default class EventItemView extends AbstractView {
   #tickEventAsFavorite = (evt) => {
     evt.preventDefault();
     this._callback.favoriteClick();
+  };
+
+  #showEditFormClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.click();
   };
 }

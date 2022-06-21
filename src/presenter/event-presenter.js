@@ -3,12 +3,7 @@ import EditEventFormView from '../view/edit-event-form-view';
 import OffersView from '../view/offers-view';
 import DestinationView from '../view/destination-view';
 import { render, replace, remove } from '../framework/render';
-import { UserAction } from '../project-constants';
-
-const Mode = {
-  DEFAULT: 'DEFAULT',
-  EDITING: 'EDITING',
-};
+import { UserAction, Mode } from '../project-constants';
 
 export default class EventPresenter {
   #event = null;
@@ -105,25 +100,6 @@ export default class EventPresenter {
     Object.keys(prevComponentVersions).forEach((componentName) => remove(prevComponentVersions[componentName]));
   };
 
-  /**
-   * Метод ререндерит форму редактирования в соответствии с обновлёнными данными точки маршрута
-   * @param {Object} updatedEvent - объект с обновлёнными данными точки маршрута
-   */
-  #rerenderEditForm = (updatedEvent, offerDisabled = false) => {
-    this.#eventOffersComponent = new OffersView(this.#offers, updatedEvent, offerDisabled);
-    this.#eventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === updatedEvent.destination));
-    render(this.#eventOffersComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
-    render(this.#eventDestinationDetailsComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
-  };
-
-  /**
-   * Метод возвращает форму редактирования в её исходное состояние;
-   */
-  #resetEditFormView = () => {
-    this.#editEventFormComponent.reset(this.#event);
-    this.#rerenderEditForm(this.#event);
-  };
-
   destroy = () => {
     remove(this.#eventViewComponent);
     remove(this.#editEventFormComponent);
@@ -135,32 +111,6 @@ export default class EventPresenter {
     if (this.#mode !== Mode.DEFAULT) {
       this.#resetEditFormView();
       this.#replaceFormToEventItem();
-    }
-  };
-
-  #tickAsFavoriteEvent = () => {
-    this.#changeData(UserAction.UPDATE_EVENT, {...this.#event, isFavorite: !this.#event.isFavorite});
-  };
-
-  #replaceEventItemToForm = () => {
-    replace(this.#editEventFormComponent, this.#eventViewComponent);
-    render(this.#eventOffersComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
-    render(this.#eventDestinationDetailsComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
-    this.#changeMode();
-    this.#mode = Mode.EDITING;
-  };
-
-  #replaceFormToEventItem = () => {
-    replace(this.#eventViewComponent, this.#editEventFormComponent);
-    this.#mode = Mode.DEFAULT;
-  };
-
-  #onEcsKeyDown = (evt) => {
-    if (evt.key === 'Esc' || evt.key === 'Escape') {
-      evt.preventDefault();
-      this.#resetEditFormView();
-      this.#replaceFormToEventItem();
-      document.removeEventListener('keydown', this.#onEcsKeyDown);
     }
   };
 
@@ -207,5 +157,50 @@ export default class EventPresenter {
     };
 
     this.#editEventFormComponent.shake(resetEditFormState);
+  };
+
+  /**
+   * Метод ререндерит форму редактирования в соответствии с обновлёнными данными точки маршрута
+   * @param {Object} updatedEvent - объект с обновлёнными данными точки маршрута
+   */
+  #rerenderEditForm = (updatedEvent, offerDisabled = false) => {
+    this.#eventOffersComponent = new OffersView(this.#offers, updatedEvent, offerDisabled);
+    this.#eventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === updatedEvent.destination));
+    render(this.#eventOffersComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
+    render(this.#eventDestinationDetailsComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
+  };
+
+  /**
+   * Метод возвращает форму редактирования в её исходное состояние;
+   */
+  #resetEditFormView = () => {
+    this.#editEventFormComponent.reset(this.#event);
+    this.#rerenderEditForm(this.#event);
+  };
+
+  #tickAsFavoriteEvent = () => {
+    this.#changeData(UserAction.UPDATE_EVENT, {...this.#event, isFavorite: !this.#event.isFavorite});
+  };
+
+  #replaceEventItemToForm = () => {
+    replace(this.#editEventFormComponent, this.#eventViewComponent);
+    render(this.#eventOffersComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
+    render(this.#eventDestinationDetailsComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
+    this.#changeMode();
+    this.#mode = Mode.EDITING;
+  };
+
+  #replaceFormToEventItem = () => {
+    replace(this.#eventViewComponent, this.#editEventFormComponent);
+    this.#mode = Mode.DEFAULT;
+  };
+
+  #onEcsKeyDown = (evt) => {
+    if (evt.key === 'Esc' || evt.key === 'Escape') {
+      evt.preventDefault();
+      this.#resetEditFormView();
+      this.#replaceFormToEventItem();
+      document.removeEventListener('keydown', this.#onEcsKeyDown);
+    }
   };
 }

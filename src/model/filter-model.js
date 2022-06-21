@@ -8,10 +8,6 @@ export default class FilterModel extends Observable {
     return this.#filter;
   }
 
-  set filter(updateTypeFilter) {
-    this.#filter = updateTypeFilter;
-  }
-
   /**
    * Устанавливает новый тип фильтра
    * @param {String} updatedType - Новый тип фиьтра

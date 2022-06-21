@@ -41,6 +41,7 @@ const FilterType = {
 };
 
 const UpdateType = {
+  PATCH: 'PATCH',
   DEFAULT: 'DEFAULT',
   FULL: 'FULL',
   INIT: 'INIT'
@@ -91,6 +92,12 @@ const UiBlockerTimeLimit = {
   UPPER_LIMIT: 1000,
 };
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
+
 export {
   SortType,
   FilterType,
@@ -105,5 +112,6 @@ export {
   ApiConfig,
   DownloadingStateType,
   ServerEndpoin,
-  UiBlockerTimeLimit
+  UiBlockerTimeLimit,
+  Mode
 };

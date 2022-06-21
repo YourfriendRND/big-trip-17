@@ -103,9 +103,18 @@ export default class TripMapPresenter {
         }
         break;
       }
+      case UpdateType.PATCH: {
+        this.#clearListContainer();
+        this.#events = getFilteredEvents(this.#filterModel.filter, this.events);
+        this.#sortEvents(this.#eventSortForm.getCurrentSortType());
+        this.#renderEventTripBoard();
+        break;
+      }
       default: {
         this.#clearListContainer();
         this.#events = getFilteredEvents(this.#filterModel.filter, this.events);
+        this.#resetSortType();
+        this.#renderSort();
         this.#sortEvents(this.#eventSortForm.getCurrentSortType());
         this.#renderEventTripBoard();
       }
@@ -221,8 +230,9 @@ export default class TripMapPresenter {
     if (this.#events.length > 0) {
       this.#handleModeEventChange();
     }
-    this.#newEventPresenter.init();
+    this.#filterModel.setFilterType(FilterType.EVERYTHING, UpdateType.FULL);
     this.#resetSortType();
+    this.#newEventPresenter.init();
   };
 
   #getEmptyMessageByFilter = () => {

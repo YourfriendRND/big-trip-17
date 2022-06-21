@@ -24,6 +24,12 @@ export default class EventSortFormView extends AbstractView {
     this.element.addEventListener('click', this.#changeSortTypeHandler);
   };
 
+  resetCurrentSortType = () => {
+    this.#currentSortType = SortType.SORT_BY_DAY.title;
+  };
+
+  getCurrentSortType = () => this.#currentSortType;
+
   #changeSortTypeHandler = (evt) => {
     evt.preventDefault();
     const controlElement = evt.target.control;
@@ -34,10 +40,4 @@ export default class EventSortFormView extends AbstractView {
     controlElement.checked = true;
     this._callback.sortTypeChange(evt.target.control.dataset.sortType);
   };
-
-  resetCurrentSortType = () => {
-    this.#currentSortType = SortType.SORT_BY_DAY.title;
-  };
-
-  getCurrentSortType = () => this.#currentSortType;
 }

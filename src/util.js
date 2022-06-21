@@ -70,7 +70,7 @@ const updateElement = (elements, updatedElement) => {
   return index === -1 ? elements : [...elements.slice(0, index), updatedElement, ...elements.slice(index + 1)];
 };
 
-const getFutureEvents = (events) => events.filter((event) => dayjs().isBefore(dayjs(event.dateFrom)));
+const getFutureEvents = (events) => events.filter((event) => dayjs().isBefore(dayjs(event.dateFrom)) || dayjs().isBefore(dayjs(event.dateTo)));
 
 const getPastEvents = (events) => events.filter((event) => dayjs().isAfter(dayjs(event.dateFrom)));
 
@@ -88,6 +88,9 @@ const getFilteredEvents = (currentFilter, events = []) => {
     default: throw new Error('Unknown type of filter');
   }
 };
+
+// Проверка стоимость на положительное и целое число
+const isPositiveIntegerPrice = (price) => Number.isInteger(price) && price >= 0;
 
 export {
   getNormalDate,
@@ -107,5 +110,6 @@ export {
   getFilteredEvents,
   checkUnavailableFilter,
   isEventBeforeNextEvent,
-  compareEventsByDay
+  compareEventsByDay,
+  isPositiveIntegerPrice
 };
