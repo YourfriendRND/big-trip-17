@@ -170,11 +170,15 @@ export default class EditEventFormView extends AbstractStatefulView {
       evt.target.setCustomValidity('incorrect price, please input a positive and integer number');
       return;
     }
-    this.updateElement({
+    if (submitBtn.disabled) {
+      submitBtn.disabled = false;
+      evt.target.setCustomValidity('');
+    }
+    this._setState({
       basePrice: price
     });
-    this._callback.changePrice(this.#parseStateToEvent(this._state));
   };
+
 
   #deleteEventHandler = (evt) => {
     evt.preventDefault();

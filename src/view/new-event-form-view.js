@@ -98,6 +98,9 @@ export default class NewEventFormView extends AbstractStatefulView {
 
   setCloseEcsHandler = (callback) => {
     this._callback.close = callback;
+    if (document.activeElement) {
+      document.activeElement.blur();
+    }
     document.addEventListener('keydown', this.#onEcsKeyDown);
   };
 
