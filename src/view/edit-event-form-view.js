@@ -88,7 +88,6 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.setChangeDestinationHandler(this._callback.changeDest);
     this.setEditSubmitHandler(this._callback.submit);
     this.setCloseEditClickHandler(this._callback.click);
-    this.setChangeDateTime(this._callback.changeDateTime);
     this.#setDatepickerStartDate();
     this.#setDatePickerFinishDate();
     this.setChangePriceHandler(this._callback.changePrice);
@@ -123,12 +122,7 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#deleteEventHandler);
   };
 
-  setChangeDateTime = (callback) => {
-    this._callback.changeDateTime = callback;
-  };
-
-  setChangePriceHandler = (callback) => {
-    this._callback.changePrice = callback;
+  setChangePriceHandler = () => {
     this.element.querySelector('.event__input--price').addEventListener('change', this.#changePriceHandler);
   };
 
@@ -162,41 +156,46 @@ export default class EditEventFormView extends AbstractStatefulView {
     return event;
   };
 
-  #changePriceHandler = (evt) => {
-    const price = Number(evt.target.value);
-    const submitBtn = this.element.querySelector('.event__save-btn');
-    if(!isPositiveIntegerPrice(price)) {
-      submitBtn.disabled = true;
-      evt.target.setCustomValidity('incorrect price, please input a positive and integer number');
-      return;
-    }
-    if (submitBtn.disabled) {
-      submitBtn.disabled = false;
-      evt.target.setCustomValidity('');
-    }
-    this._setState({
-      basePrice: price
-    });
-  };
-
-
   #deleteEventHandler = (evt) => {
     evt.preventDefault();
     this._callback.deleteEvent(this.#parseStateToEvent(this._state));
   };
 
+  #isPriceAndDestinationFieldsInvalid = () => {
+    const destinationField = this.element.querySelector('.event__input--destination');
+    const priceField = this.element.querySelector('.event__input--price');
+    return !!(!destinationField.validity.valid || !priceField.validity.valid);
+  };
+
   #changeDestinationHandler = (evt) => {
     const validToggle = this.#isDestinationValid(evt.target.value);
     const submitBtn = this.element.querySelector('.event__save-btn');
-    if (!validToggle) {
-      submitBtn.disabled = true;
-      evt.target.setCustomValidity('incorrect destination point, please select a destination from the list of available');
+    if (validToggle) {
+      evt.target.setCustomValidity('');
+      submitBtn.disabled = this.#isPriceAndDestinationFieldsInvalid();
+      this._setState({
+        destination: evt.target.value
+      });
+      this._callback.changeDest(this.#parseStateToEvent(this._state));
       return;
     }
-    this.updateElement({
-      destination: evt.target.value
-    });
-    this._callback.changeDest(this.#parseStateToEvent(this._state));
+    submitBtn.disabled = true;
+    evt.target.setCustomValidity('incorrect destination point, please select a destination from the list of available');
+  };
+
+  #changePriceHandler = (evt) => {
+    const price = Number(evt.target.value);
+    const submitBtn = this.element.querySelector('.event__save-btn');
+    if(isPositiveIntegerPrice(price)) {
+      evt.target.setCustomValidity('');
+      submitBtn.disabled = this.#isPriceAndDestinationFieldsInvalid();
+      this._setState({
+        basePrice: price
+      });
+      return;
+    }
+    submitBtn.disabled = true;
+    evt.target.setCustomValidity('incorrect price, please input a positive and integer number');
   };
 
   #closeEditFormSubmitHandler = (evt) => {
@@ -244,8 +243,11 @@ export default class EditEventFormView extends AbstractStatefulView {
   };
 
   #changeDateTime = (dateType) => (([updatedDate]) => {
-    this.updateElement({[dateType]: updatedDate.toISOString(0)});
-    this._callback.changeDateTime(this.#parseStateToEvent(this._state));
+    this._setState({
+      [dateType]:updatedDate.toISOString(0),
+    });
+    this.#setDatePickerFinishDate();
+    this.#setDatepickerStartDate();
   });
 
   #isDestinationValid = (destinationValue) => this.#destinations.some((destination) => destination.name === destinationValue);

@@ -61,7 +61,7 @@ export default class TripMapPresenter {
     this.#offers = [...this.#offerModel.offers];
     this.#events = getFilteredEvents(this.#filterModel.filter, this.events);
     this.#newEventButton.addEventListener('click', this.#createNewEvent);
-    this.#newEventPresenter = new NewEventPresener(this.#events, this.#destinations, this.#offers, this.#eventList, this.#newEventButton, this.#handleViewAction, this.#getEmptyMessageByFilter);
+    this.#newEventPresenter = new NewEventPresener(this.#events, this.#destinations, this.#offers, this.#eventList, this.#newEventButton, this.#handleViewAction, this.#getEmptyMessageByFilter, this.#getEcsKeydownCloser);
     render(this.#eventList, this.#listContainer);
     if (!this.#events.length) {
       this.#emptyListViewComponent = new EmptyListView(this.#getEmptyMessageByFilter());
@@ -172,7 +172,7 @@ export default class TripMapPresenter {
   });
 
   #renderEvent = (event) => {
-    const eventPresenter = new EventPresenter(this.#eventList, this.#handleViewAction, this.#handleModeEventChange);
+    const eventPresenter = new EventPresenter(this.#eventList, this.#handleViewAction, this.#handleModeEventChange, this.#getEcsKeydownCloser);
     eventPresenter.init(event, this.#destinations, this.#offers);
     this.#eventPresenter.set(event.id, eventPresenter);
   };
@@ -244,4 +244,14 @@ export default class TripMapPresenter {
     }
   };
 
+  #getEcsKeydownCloser = (callbacks) => {
+    const onEscKeyDown = (evt) => {
+      if (evt.key === 'Esc' || evt.key === 'Escape') {
+        evt.preventDefault();
+        callbacks.forEach((callback) => callback());
+        document.removeEventListener('keydown', onEscKeyDown);
+      }
+    };
+    return onEscKeyDown;
+  };
 }
