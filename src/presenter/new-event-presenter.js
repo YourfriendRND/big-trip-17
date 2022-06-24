@@ -17,9 +17,9 @@ export default class NewEventPresener {
   #newEventButton = null;
   #getEmptyListMessage = null;
   #emptyListViewComponent = null;
+  #getEscCloser = null;
 
-
-  constructor(events, destinations, offers, eventListContainer, newEventButton, changeHandler, getMessage) {
+  constructor(events, destinations, offers, eventListContainer, newEventButton, changeHandler, getMessage, getEscCloser) {
     this.#events = [...events];
     this.#destinations = [...destinations];
     this.#offers = [...offers];
@@ -27,11 +27,12 @@ export default class NewEventPresener {
     this.#eventList = eventListContainer;
     this.#newEventButton = newEventButton;
     this.#getEmptyListMessage = getMessage;
+    this.#getEscCloser = getEscCloser;
   }
 
   init = () => {
     this.#newEventButton.disabled = true;
-    this.#newEventFormComponent = new NewEventFormView(this.#destinations, this.#offers);
+    this.#newEventFormComponent = new NewEventFormView(this.#destinations, this.#offers, this.#getEscCloser);
     render(this.#newEventFormComponent, this.#eventList.element, RenderPosition.AFTERBEGIN);
     this.#newEventOfferComponent = new OffersView(this.#offers);
     this.#newEventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === 'Geneva'));
@@ -39,15 +40,14 @@ export default class NewEventPresener {
     render(this.#newEventDestinationDetailsComponent, this.#newEventFormComponent.element.querySelector('.event__details'));
 
     this.#newEventFormComponent.setCancelClickHandler(this.destroy);
+
     this.#newEventFormComponent.setCloseEcsHandler(this.destroy);
 
     this.#newEventFormComponent.setChangeTypeEventHandler(this.#rerenderNewEventForm);
 
-    this.#newEventFormComponent.setChangeDestinationHandler(this.#rerenderNewEventForm);
+    this.#newEventFormComponent.setChangeDestinationHandler(this.#rerenderDestinationBlock);
 
-    this.#newEventFormComponent.setChangeDateTime(this.#rerenderNewEventForm);
-
-    this.#newEventFormComponent.setChangePriceHandler(this.#rerenderNewEventForm);
+    this.#newEventFormComponent.setChangePriceHandler();
 
     this.#newEventFormComponent.setSubmitEventClickHandler(this.#saveEvent);
   };
@@ -97,6 +97,12 @@ export default class NewEventPresener {
     this.#newEventOfferComponent = new OffersView(this.#offers, updatedEvent, offerDisabled);
     this.#newEventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === updatedEvent.destination));
     render(this.#newEventOfferComponent, this.#newEventFormComponent.element.querySelector('.event__details'));
+    render(this.#newEventDestinationDetailsComponent, this.#newEventFormComponent.element.querySelector('.event__details'));
+  };
+
+  #rerenderDestinationBlock = (updatedEvent) => {
+    remove(this.#newEventDestinationDetailsComponent);
+    this.#newEventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === updatedEvent.destination));
     render(this.#newEventDestinationDetailsComponent, this.#newEventFormComponent.element.querySelector('.event__details'));
   };
 

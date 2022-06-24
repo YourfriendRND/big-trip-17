@@ -64,14 +64,18 @@ export default class NewEventFormView extends AbstractStatefulView {
   #destinations = [];
   #datepicker = null;
   #eventTypes = null;
+  #getEscCloser = null;
+  #onEcsKeyDown = null;
 
-  constructor(destinations, offers, event = null) {
+  constructor(destinations, offers, getEcsCloser, event = null) {
     super();
     this.#destinations = [...destinations];
     this.#eventTypes = offers.map((offer) => offer.type);
     this._state = event ? this.#parseEventToState(event) : this.#getNewEventData();
     this.#setDatepickerStartDate();
     this.#setDatePickerFinishDate();
+    this.#getEscCloser = getEcsCloser;
+
   }
 
   get template() {
@@ -83,7 +87,7 @@ export default class NewEventFormView extends AbstractStatefulView {
     this.setCancelClickHandler(this._callback.cancel);
     this.setChangeTypeEventHandler(this._callback.changeType);
     this.setChangeDestinationHandler(this._callback.changeDest);
-    this.setChangePriceHandler(this._callback.changePrice);
+    this.setChangePriceHandler();
     this.#setDatepickerStartDate();
     this.#setDatePickerFinishDate();
     this.setCloseEcsHandler(this._callback.close);
@@ -98,6 +102,10 @@ export default class NewEventFormView extends AbstractStatefulView {
 
   setCloseEcsHandler = (callback) => {
     this._callback.close = callback;
+    if (document.activeElement) {
+      document.activeElement.blur();
+    }
+    this.#onEcsKeyDown = this.#getEscCloser([callback]);
     document.addEventListener('keydown', this.#onEcsKeyDown);
   };
 
@@ -112,13 +120,7 @@ export default class NewEventFormView extends AbstractStatefulView {
     allEventTypeButtons.forEach((element) => element.addEventListener('click', this.#changeTypeEvent));
   };
 
-  // методы для даты
-  setChangeDateTime = (callback) => {
-    this._callback.changeDateTime = callback;
-  };
-
-  setChangePriceHandler = (callback) => {
-    this._callback.changePrice = callback;
+  setChangePriceHandler = () => {
     this.element.querySelector('.event__input--price').addEventListener('change', this.#changePriceHandler);
   };
 
@@ -177,18 +179,41 @@ export default class NewEventFormView extends AbstractStatefulView {
     this._state = null;
   };
 
+  #isPriceAndDestinationFieldsInvalid = () => {
+    const destinationField = this.element.querySelector('.event__input--destination');
+    const priceField = this.element.querySelector('.event__input--price');
+    return !!(!destinationField.validity.valid || !priceField.validity.valid);
+  };
+
   #changeDestinationHandler = (evt) => {
     const validToggle = this.#isDestinationValid(evt.target.value);
     const submitBtn = this.element.querySelector('.event__save-btn');
-    if (!validToggle) {
-      submitBtn.disabled = true;
-      evt.target.setCustomValidity('incorrect destination point, please select a destination from the list of available');
+    if (validToggle) {
+      evt.target.setCustomValidity('');
+      submitBtn.disabled = this.#isPriceAndDestinationFieldsInvalid();
+      this._setState({
+        destination: evt.target.value
+      });
+      this._callback.changeDest(this.#parseStateToEvent(this._state));
       return;
     }
-    this.updateElement({
-      destination: evt.target.value
-    });
-    this._callback.changeDest(this.#parseStateToEvent(this._state));
+    submitBtn.disabled = true;
+    evt.target.setCustomValidity('incorrect destination point, please select a destination from the list of available');
+  };
+
+  #changePriceHandler = (evt) => {
+    const price = Number(evt.target.value);
+    const submitBtn = this.element.querySelector('.event__save-btn');
+    if(isPositiveIntegerPrice(price)) {
+      evt.target.setCustomValidity('');
+      submitBtn.disabled = this.#isPriceAndDestinationFieldsInvalid();
+      this._setState({
+        basePrice: price
+      });
+      return;
+    }
+    submitBtn.disabled = true;
+    evt.target.setCustomValidity('incorrect price, please input a positive and integer number');
   };
 
   #setDatepickerStartDate = () => {
@@ -217,37 +242,15 @@ export default class NewEventFormView extends AbstractStatefulView {
   };
 
   #changeDateTime = (dateType) => (([updatedDate]) => {
-    this.updateElement({[dateType]: updatedDate.toISOString(0)});
-    this._callback.changeDateTime(this.#parseStateToEvent(this._state));
+    this._setState({[dateType]: updatedDate.toISOString(0)});
+    this.#setDatePickerFinishDate();
+    this.#setDatepickerStartDate();
   });
-
-  #changePriceHandler = (evt) => {
-    const price = Number(evt.target.value);
-    const submitBtn = this.element.querySelector('.event__save-btn');
-    if(!isPositiveIntegerPrice(price)) {
-      submitBtn.disabled = true;
-      evt.target.setCustomValidity('incorrect price, please input a positive and integer number');
-      return;
-    }
-    this.updateElement({
-      basePrice: price
-    });
-    this._callback.changePrice(this.#parseStateToEvent(this._state));
-  };
 
   #submitEventClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.submit(this.#parseStateToEvent(this._state));
     this.state = null;
-  };
-
-  #onEcsKeyDown = (evt) => {
-    if (evt.key === 'Esc' || evt.key === 'Escape') {
-      evt.preventDefault();
-      this._callback.close();
-      document.removeEventListener('keydown', this.#onEcsKeyDown);
-      this._state = null;
-    }
   };
 
   #isDestinationValid = (destinationValue) => this.#destinations.some((destination) => destination.name === destinationValue);

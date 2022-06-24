@@ -97,7 +97,6 @@ const Mode = {
   EDITING: 'EDITING',
 };
 
-
 export {
   SortType,
   FilterType,

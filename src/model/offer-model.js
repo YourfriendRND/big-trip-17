@@ -17,7 +17,7 @@ export default class OfferModel extends Observable {
     try {
       this.#offers = await this.#eventsApi.getOffers();
     } catch (err) {
-      this.offers = [];
+      this.#offers = [];
     }
     this._notify(UpdateType.INIT, DownloadingStateType.OFFERS);
   };

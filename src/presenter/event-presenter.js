@@ -14,15 +14,18 @@ export default class EventPresenter {
   #eventListContainer = null;
   #changeData = null;
   #changeMode = null;
+  #getEscCloser = null;
+  #onEcsKeyDown = null;
 
   #destinations = [];
   #offers = [];
   #mode = Mode.DEFAULT;
 
-  constructor(eventListContainer, changeData, changeMode) {
+  constructor(eventListContainer, changeData, changeMode, getEscCloser) {
     this.#eventListContainer = eventListContainer;
     this.#changeData = changeData;
     this.#changeMode = changeMode;
+    this.#getEscCloser = getEscCloser;
   }
 
   init = (event, destinations, offers) => {
@@ -41,6 +44,7 @@ export default class EventPresenter {
     this.#editEventFormComponent = new EditEventFormView(this.#event, this.#destinations, this.#offers);
     this.#eventOffersComponent = new OffersView(this.#offers, this.#event);
     this.#eventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === this.#event.destination));
+    this.#onEcsKeyDown = this.#getEscCloser([this.#resetEditFormView, this.#replaceFormToEventItem]);
 
     this.#eventViewComponent.setEditClickHandler(() => {
       this.#replaceEventItemToForm();
@@ -51,21 +55,16 @@ export default class EventPresenter {
     this.#editEventFormComponent.setChangeTypeEventHandler(this.#rerenderEditForm);
 
     //Обработчик смены точки назначения
-    this.#editEventFormComponent.setChangeDestinationHandler(this.#rerenderEditForm);
+    this.#editEventFormComponent.setChangeDestinationHandler(this.#rerenderDistinationBlock);
 
-    // Обработчик смены даты
-    this.#editEventFormComponent.setChangeDateTime(this.#rerenderEditForm);
-
-    this.#editEventFormComponent.setChangePriceHandler(this.#rerenderEditForm);
+    this.#editEventFormComponent.setChangePriceHandler();
 
     // Обработчик клика Favorite
     this.#eventViewComponent.setFavoriteClickHandler(this.#tickAsFavoriteEvent);
 
-
     // Обработчик кнопки save
     this.#editEventFormComponent.setEditSubmitHandler((updatedEvent) => {
       updatedEvent.offers = this.#eventOffersComponent.getCheckedOffers();
-      //this.#replaceFormToEventItem();
       this.#changeData(UserAction.UPDATE_EVENT, updatedEvent);
       document.removeEventListener('keydown', this.#onEcsKeyDown);
     });
@@ -170,6 +169,15 @@ export default class EventPresenter {
     render(this.#eventDestinationDetailsComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
   };
 
+  #rerenderDistinationBlock = (updatedEvent) => {
+    remove(this.#eventDestinationDetailsComponent);
+    const targetDestinationPlace = this.#destinations.find((city) => city.name === updatedEvent.destination);
+    if (targetDestinationPlace) {
+      this.#eventDestinationDetailsComponent = new DestinationView(this.#destinations.find((city) => city.name === updatedEvent.destination));
+      render(this.#eventDestinationDetailsComponent, this.#editEventFormComponent.element.querySelector('.event__details'));
+    }
+  };
+
   /**
    * Метод возвращает форму редактирования в её исходное состояние;
    */
@@ -195,12 +203,4 @@ export default class EventPresenter {
     this.#mode = Mode.DEFAULT;
   };
 
-  #onEcsKeyDown = (evt) => {
-    if (evt.key === 'Esc' || evt.key === 'Escape') {
-      evt.preventDefault();
-      this.#resetEditFormView();
-      this.#replaceFormToEventItem();
-      document.removeEventListener('keydown', this.#onEcsKeyDown);
-    }
-  };
 }
